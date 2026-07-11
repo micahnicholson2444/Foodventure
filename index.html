@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lemonade Stand</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Trebuchet MS', system-ui, sans-serif;
+    background: linear-gradient(#bfe9ff, #eafcff);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    color: #2b2b2b;
+    user-select: none;
+  }
+  h1 { margin: 16px 0 4px; color: #d98a00; text-shadow: 1px 1px 0 #fff; }
+  #hud {
+    display: flex; gap: 24px; font-size: 15px; font-weight: bold;
+    background: #fff; padding: 8px 20px; border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15); margin-bottom: 8px;
+  }
+  #stage {
+    position: relative;
+    width: 700px; max-width: 96vw;
+    height: 460px;
+    background: linear-gradient(#bfe9ff 0 55%, #cdeeff 55% 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  }
+  /* grey plot outlining the floor */
+  #plot {
+    position: absolute;
+    left: 50%; bottom: 14px; transform: translateX(-50%);
+    width: 640px; max-width: 92%;
+    height: 200px;
+    background: #b9bcc2;
+    border: 5px dashed #7d8087;
+    border-radius: 10px;
+  }
+  .label {
+    position: absolute; font-size: 11px; font-weight: bold;
+    color: #555; background: rgba(255,255,255,.7);
+    padding: 1px 6px; border-radius: 6px; white-space: nowrap;
+  }
+  /* lemonade maker */
+  #maker {
+    position: absolute; left: 60px; bottom: 60px;
+    width: 74px; height: 96px;
+    background: linear-gradient(#ffe27a, #ffca3a);
+    border: 3px solid #c98a00; border-radius: 10px;
+  }
+  #maker::before {
+    content: '🍋'; position: absolute; top: 6px; left: 0; right: 0;
+    text-align: center; font-size: 30px;
+  }
+  #maker::after {
+    content: ''; position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    width: 30px; height: 34px; background: #fff6c9;
+    border: 2px solid #c98a00; border-radius: 4px;
+  }
+  /* bench */
+  #bench {
+    position: absolute; right: 70px; bottom: 66px;
+    width: 130px; height: 20px; background: #a9713d;
+    border-radius: 4px; box-shadow: 0 14px 0 -4px #8a5a2e;
+  }
+  #bench .leg { position: absolute; bottom: -30px; width: 8px; height: 30px; background: #8a5a2e; }
+  #bench .leg.l { left: 8px; } #bench .leg.r { right: 8px; }
+  /* character */
+  .person { position: absolute; bottom: 70px; text-align: center; transition: left .04s linear; }
+  .person .body { font-size: 54px; line-height: 1; }
+  .person .tag { font-size: 11px; font-weight: bold; background: rgba(255,255,255,.8); padding: 1px 6px; border-radius: 6px; }
+  #me { left: 150px; }
+  #customer { left: -80px; }
+  /* speech bubble */
+  #bubble {
+    position: absolute; left: 50%; top: 20px; transform: translateX(-50%);
+    background: #fff; border: 2px solid #d98a00; border-radius: 12px;
+    padding: 10px 16px; font-size: 15px; font-weight: bold; max-width: 420px;
+    text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,.15); opacity: 0;
+    transition: opacity .3s; pointer-events: none;
+  }
+  #bubble.show { opacity: 1; }
+  #controls { margin: 14px 0 30px; }
+  button {
+    font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer;
+    background: #ffca3a; border: 3px solid #c98a00; color: #6b4c00;
+    padding: 10px 22px; border-radius: 30px; transition: transform .1s, background .2s;
+  }
+  button:hover:not(:disabled) { background: #ffd766; transform: translateY(-2px); }
+  button:disabled { opacity: .5; cursor: default; }
+  /* start overlay */
+  #overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55);
+    display: flex; align-items: center; justify-content: center; z-index: 10;
+  }
+  #card {
+    background: #fff; padding: 30px 34px; border-radius: 16px; text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,.3); max-width: 360px;
+  }
+  #card h2 { color: #d98a00; margin-bottom: 8px; }
+  #card p { font-size: 14px; color: #555; margin-bottom: 16px; }
+  #card input {
+    font-family: inherit; font-size: 16px; padding: 10px 14px; width: 100%;
+    border: 2px solid #ccc; border-radius: 10px; margin-bottom: 16px; text-align: center;
+  }
+  #card input:focus { outline: none; border-color: #ffca3a; }
+</style>
+</head>
+<body>
+  <h1>🍋 Lemonade Stand</h1>
+  <div id="hud">
+    <span>👤 <span id="hudName">—</span></span>
+    <span>🥤 Served: <span id="hudServed">0</span></span>
+    <span>💰 $<span id="hudCash">0</span></span>
+  </div>
+
+  <div id="stage">
+    <div id="plot"></div>
+    <div class="label" style="left:60px; bottom:160px;">Lemonade Maker</div>
+    <div class="label" style="right:70px; bottom:100px;">Bench</div>
+
+    <div id="maker"></div>
+    <div id="bench"><span class="leg l"></span><span class="leg r"></span></div>
+
+    <div class="person" id="me"><div class="body">🧑‍🍳</div><div class="tag" id="meTag">You</div></div>
+    <div class="person" id="customer"><div class="body">🧍</div><div class="tag">Customer</div></div>
+
+    <div id="bubble"></div>
+  </div>
+
+  <div id="controls">
+    <button id="nextBtn" disabled>Wait for customer…</button>
+  </div>
+
+  <!-- start overlay -->
+  <div id="overlay">
+    <div id="card">
+      <h2>Welcome!</h2>
+      <p>What's your name, lemonade seller?</p>
+      <input id="nameInput" type="text" maxlength="14" placeholder="Enter your name" />
+      <button id="startBtn">Start Selling 🍋</button>
+    </div>
+  </div>
+
+<script>
+  var state = { name: "", served: 0, cash: 0, current: null, busy: false };
+
+  var bubble = document.getElementById("bubble");
+  var customer = document.getElementById("customer");
+  var nextBtn = document.getElementById("nextBtn");
+
+  function say(text) {
+    bubble.textContent = text;
+    bubble.classList.add("show");
+  }
+  function hideBubble() { bubble.classList.remove("show"); }
+
+  function updateHud() {
+    document.getElementById("hudName").textContent = state.name;
+    document.getElementById("hudServed").textContent = state.served;
+    document.getElementById("hudCash").textContent = state.cash;
+  }
+
+  // start
+  document.getElementById("startBtn").addEventListener("click", startGame);
+  document.getElementById("nameInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") startGame();
+  });
+
+  function startGame() {
+    var val = document.getElementById("nameInput").value.trim();
+    state.name = val || "Chef";
+    document.getElementById("meTag").textContent = state.name;
+    updateHud();
+    document.getElementById("overlay").style.display = "none";
+    nextCustomer();
+  }
+
+  // move customer toward a target position
+  function walkTo(target, done) {
+    var pos = parseFloat(customer.style.left) || -80;
+    var step = pos < target ? 6 : -6;
+    var timer = setInterval(function () {
+      pos += step;
+      if ((step > 0 && pos >= target) || (step < 0 && pos <= target)) {
+        pos = target; clearInterval(timer); if (done) done();
+      }
+      customer.style.left = pos + "px";
+    }, 20);
+  }
+
+  function nextCustomer() {
+    state.busy = true;
+    nextBtn.disabled = true;
+    nextBtn.textContent = "Customer approaching…";
+    hideBubble();
+    customer.style.left = "-80px";
+    customer.querySelector(".body").textContent = "🧍";
+    // walk up to the bench on the right side
+    walkTo(470, function () {
+      var qty = 1 + Math.floor(Math.random() * 3); // 1-3 lemonades
+      state.current = qty;
+      say("Hi! Can I get " + qty + " lemonade" + (qty > 1 ? "s" : "") + ", please?");
+      nextBtn.disabled = false;
+      nextBtn.textContent = "Make " + qty + " lemonade" + (qty > 1 ? "s" : "");
+      state.busy = false;
+    });
+  }
+
+  // the character makes the order based on what the customer asked
+  function makeOrder() {
+    if (state.busy || state.current == null) return;
+    state.busy = true;
+    nextBtn.disabled = true;
+    var qty = state.current;
+    say(state.name + " makes " + qty + " lemonade" + (qty > 1 ? "s" : "") + "… 🍋");
+    nextBtn.textContent = "Making…";
+
+    setTimeout(function () {
+      customer.querySelector(".body").textContent = "😋";
+      say("Here you go! " + qty + " fresh lemonade" + (qty > 1 ? "s" : "") + " 🥤");
+      state.served += qty;
+      state.cash += qty * 2; // $2 each
+      state.current = null;
+      updateHud();
+
+      setTimeout(function () {
+        say("Thank you! 😊");
+        walkTo(760, function () {
+          state.busy = false;
+          nextBtn.disabled = false;
+          nextBtn.textContent = "Next customer";
+          nextBtn.onclick = function () { nextBtn.onclick = defaultClick; nextCustomer(); };
+        });
+      }, 900);
+    }, 1100);
+  }
+
+  function defaultClick() { makeOrder(); }
+  nextBtn.onclick = defaultClick;
+</script>
+</body>
+</html>
