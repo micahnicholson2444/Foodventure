@@ -1,248 +1,1055 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Lemonade Stand</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lemonade Venture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Trebuchet MS', system-ui, sans-serif;
-    background: linear-gradient(#bfe9ff, #eafcff);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    color: #2b2b2b;
-    user-select: none;
+  :root{
+    --sky-top:#7fd8f0;
+    --sky-bottom:#bdeef7;
+    --grass:#6bbf59;
+    --grass-dark:#5aa649;
+    --plot:#c9ccce;
+    --plot-edge:#b3b7ba;
+    --lemon:#ffd23f;
+    --lemon-dark:#f2a900;
+    --coral:#ff6b5b;
+    --cream:#fff8e7;
+    --ink:#3a2b1a;
   }
-  h1 { margin: 16px 0 4px; color: #d98a00; text-shadow: 1px 1px 0 #fff; }
-  #hud {
-    display: flex; gap: 24px; font-size: 15px; font-weight: bold;
-    background: #fff; padding: 8px 20px; border-radius: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,.15); margin-bottom: 8px;
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 55%, var(--grass) 55%, var(--grass-dark) 100%);
+    font-family:'Nunito', sans-serif;
+    overflow:hidden;
   }
-  #stage {
-    position: relative;
-    width: 700px; max-width: 96vw;
-    height: 460px;
-    background: linear-gradient(#bfe9ff 0 55%, #cdeeff 55% 100%);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+
+  #gameWrap{
+    position:relative;
+    width:900px;
+    max-width:96vw;
+    filter:drop-shadow(0 18px 30px rgba(0,0,0,0.25));
   }
-  /* grey plot outlining the floor */
-  #plot {
-    position: absolute;
-    left: 50%; bottom: 14px; transform: translateX(-50%);
-    width: 640px; max-width: 92%;
-    height: 200px;
-    background: #b9bcc2;
-    border: 5px dashed #7d8087;
-    border-radius: 10px;
+
+  canvas{
+    display:block;
+    width:100%;
+    height:auto;
+    border-radius:18px;
+    background:var(--grass);
+    cursor:pointer;
   }
-  .label {
-    position: absolute; font-size: 11px; font-weight: bold;
-    color: #555; background: rgba(255,255,255,.7);
-    padding: 1px 6px; border-radius: 6px; white-space: nowrap;
+
+  /* ---------- Top UI bar ---------- */
+  #gameUI{
+    position:absolute;
+    top:14px;
+    left:14px;
+    right:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    pointer-events:none;
+    font-family:'Baloo 2', sans-serif;
   }
-  /* lemonade maker */
-  #maker {
-    position: absolute; left: 60px; bottom: 60px;
-    width: 74px; height: 96px;
-    background: linear-gradient(#ffe27a, #ffca3a);
-    border: 3px solid #c98a00; border-radius: 10px;
+
+  #titleBadge{
+    background:var(--cream);
+    border:3px solid var(--lemon-dark);
+    border-radius:14px;
+    padding:6px 16px;
+    font-weight:800;
+    font-size:20px;
+    color:var(--coral);
+    text-shadow:1px 1px 0 rgba(0,0,0,0.06);
+    box-shadow:0 4px 0 rgba(0,0,0,0.12);
   }
-  #maker::before {
-    content: '🍋'; position: absolute; top: 6px; left: 0; right: 0;
-    text-align: center; font-size: 30px;
+
+  #moneyDisplay{
+    background:var(--cream);
+    border:3px solid var(--lemon-dark);
+    border-radius:14px;
+    padding:8px 18px;
+    font-weight:800;
+    font-size:22px;
+    color:var(--ink);
+    box-shadow:0 4px 0 rgba(0,0,0,0.12);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transform-origin:center;
+    transition:transform 0.12s cubic-bezier(.34,1.56,.64,1);
   }
-  #maker::after {
-    content: ''; position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-    width: 30px; height: 34px; background: #fff6c9;
-    border: 2px solid #c98a00; border-radius: 4px;
+
+  #moneyDisplay.bump{ transform:scale(1.18); }
+
+  #moneyDisplay .coin{
+    display:inline-block;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff3b0, var(--lemon-dark));
+    border:2px solid #b97a00;
   }
-  /* bench */
-  #bench {
-    position: absolute; right: 70px; bottom: 66px;
-    width: 130px; height: 20px; background: #a9713d;
-    border-radius: 4px; box-shadow: 0 14px 0 -4px #8a5a2e;
+
+  /* ---------- Name overlay ---------- */
+  #nameOverlay{
+    position:absolute;
+    inset:0;
+    background:rgba(58,43,26,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:18px;
+    z-index:20;
   }
-  #bench .leg { position: absolute; bottom: -30px; width: 8px; height: 30px; background: #8a5a2e; }
-  #bench .leg.l { left: 8px; } #bench .leg.r { right: 8px; }
-  /* character */
-  .person { position: absolute; bottom: 70px; text-align: center; transition: left .04s linear; }
-  .person .body { font-size: 54px; line-height: 1; }
-  .person .tag { font-size: 11px; font-weight: bold; background: rgba(255,255,255,.8); padding: 1px 6px; border-radius: 6px; }
-  #me { left: 150px; }
-  #customer { left: -80px; }
-  /* speech bubble */
-  #bubble {
-    position: absolute; left: 50%; top: 20px; transform: translateX(-50%);
-    background: #fff; border: 2px solid #d98a00; border-radius: 12px;
-    padding: 10px 16px; font-size: 15px; font-weight: bold; max-width: 420px;
-    text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,.15); opacity: 0;
-    transition: opacity .3s; pointer-events: none;
+
+  .nameBox{
+    background:var(--cream);
+    border:4px solid var(--lemon-dark);
+    border-radius:20px;
+    padding:32px 36px;
+    text-align:center;
+    width:340px;
+    max-width:80vw;
+    box-shadow:0 10px 0 rgba(0,0,0,0.18);
   }
-  #bubble.show { opacity: 1; }
-  #controls { margin: 14px 0 30px; }
-  button {
-    font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer;
-    background: #ffca3a; border: 3px solid #c98a00; color: #6b4c00;
-    padding: 10px 22px; border-radius: 30px; transition: transform .1s, background .2s;
+
+  .nameBox h1{
+    font-family:'Baloo 2', sans-serif;
+    color:var(--coral);
+    font-size:30px;
+    margin:0 0 4px;
   }
-  button:hover:not(:disabled) { background: #ffd766; transform: translateY(-2px); }
-  button:disabled { opacity: .5; cursor: default; }
-  /* start overlay */
-  #overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.55);
-    display: flex; align-items: center; justify-content: center; z-index: 10;
+
+  .nameBox p{
+    font-size:15px;
+    color:var(--ink);
+    margin:0 0 18px;
+    opacity:0.85;
   }
-  #card {
-    background: #fff; padding: 30px 34px; border-radius: 16px; text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,.3); max-width: 360px;
+
+  #nameInput{
+    width:100%;
+    padding:10px 12px;
+    font-size:16px;
+    font-family:'Nunito', sans-serif;
+    border:2px solid var(--lemon-dark);
+    border-radius:10px;
+    margin-bottom:14px;
+    outline:none;
+    text-align:center;
   }
-  #card h2 { color: #d98a00; margin-bottom: 8px; }
-  #card p { font-size: 14px; color: #555; margin-bottom: 16px; }
-  #card input {
-    font-family: inherit; font-size: 16px; padding: 10px 14px; width: 100%;
-    border: 2px solid #ccc; border-radius: 10px; margin-bottom: 16px; text-align: center;
+
+  #startBtn{
+    width:100%;
+    padding:12px;
+    font-family:'Baloo 2', sans-serif;
+    font-size:18px;
+    font-weight:700;
+    color:#fff;
+    background:var(--coral);
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #c8483b;
+    transition:transform 0.05s ease;
   }
-  #card input:focus { outline: none; border-color: #ffca3a; }
+  #startBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #c8483b; }
+
+  .hidden{ display:none !important; }
+
+  #footNote{
+    position:absolute;
+    bottom:10px;
+    left:0;
+    right:0;
+    text-align:center;
+    font-family:'Nunito', sans-serif;
+    font-size:13px;
+    color:rgba(58,43,26,0.65);
+    pointer-events:none;
+  }
+
+  /* ---------- Maker upgrade panel ---------- */
+  #makerOverlay{
+    position:absolute;
+    inset:0;
+    background:rgba(58,43,26,0.5);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:18px;
+    z-index:25;
+  }
+
+  .makerBox{
+    position:relative;
+    background:var(--cream);
+    border:4px solid var(--lemon-dark);
+    border-radius:20px;
+    padding:26px 28px 24px;
+    text-align:center;
+    width:300px;
+    max-width:82vw;
+    box-shadow:0 10px 0 rgba(0,0,0,0.18);
+    font-family:'Baloo 2', sans-serif;
+  }
+
+  .makerClose{
+    position:absolute;
+    top:10px;
+    right:12px;
+    background:none;
+    border:none;
+    font-size:18px;
+    font-weight:800;
+    color:var(--ink);
+    cursor:pointer;
+    opacity:0.55;
+    line-height:1;
+    padding:4px;
+  }
+  .makerClose:hover{ opacity:1; }
+
+  .makerBox h2{
+    margin:2px 0 4px;
+    font-size:22px;
+    color:var(--coral);
+  }
+
+  .levelBadge{
+    display:inline-block;
+    background:var(--lemon);
+    border:2px solid var(--lemon-dark);
+    color:var(--ink);
+    font-weight:800;
+    font-size:14px;
+    padding:3px 14px;
+    border-radius:999px;
+    margin-bottom:16px;
+  }
+
+  .statRow{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'Nunito', sans-serif;
+    font-size:14px;
+    color:var(--ink);
+    padding:9px 4px;
+    border-bottom:1px dashed #e0c88f;
+  }
+  .statRow:last-of-type{ border-bottom:none; }
+  .statRow span:first-child{ opacity:0.75; }
+  .statRow span:last-child{ font-weight:800; font-family:'Baloo 2', sans-serif; }
+
+  #upgradeBtn{
+    margin-top:18px;
+    width:100%;
+    padding:12px 10px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:#fff;
+    background:#57c48a;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #3e9868;
+    transition:transform 0.05s ease, filter 0.15s ease;
+    line-height:1.5;
+  }
+  #upgradeBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #3e9868; }
+  #upgradeBtn small{ display:block; font-family:'Nunito', sans-serif; font-weight:700; font-size:12px; opacity:0.9; }
+
+  #upgradeBtn.cantAfford{
+    background:#b9bcbf;
+    box-shadow:0 4px 0 #8d9093;
+    cursor:not-allowed;
+    filter:grayscale(0.25);
+  }
 </style>
 </head>
 <body>
-  <h1>🍋 Lemonade Stand</h1>
-  <div id="hud">
-    <span>👤 <span id="hudName">—</span></span>
-    <span>🥤 Served: <span id="hudServed">0</span></span>
-    <span>💰 $<span id="hudCash">0</span></span>
+
+<div id="gameWrap">
+  <canvas id="gameCanvas" width="900" height="600"></canvas>
+
+  <div id="gameUI">
+    <div id="titleBadge">🍋 Lemonade Venture</div>
+    <div id="moneyDisplay"><span class="coin"></span><span id="moneyCount">0</span></div>
   </div>
 
-  <div id="stage">
-    <div id="plot"></div>
-    <div class="label" style="left:60px; bottom:160px;">Lemonade Maker</div>
-    <div class="label" style="right:70px; bottom:100px;">Bench</div>
+  <div id="footNote">Click the lemonade maker to view stats and upgrade your price!</div>
 
-    <div id="maker"></div>
-    <div id="bench"><span class="leg l"></span><span class="leg r"></span></div>
-
-    <div class="person" id="me"><div class="body">🧑‍🍳</div><div class="tag" id="meTag">You</div></div>
-    <div class="person" id="customer"><div class="body">🧍</div><div class="tag">Customer</div></div>
-
-    <div id="bubble"></div>
-  </div>
-
-  <div id="controls">
-    <button id="nextBtn" disabled>Wait for customer…</button>
-  </div>
-
-  <!-- start overlay -->
-  <div id="overlay">
-    <div id="card">
-      <h2>Welcome!</h2>
-      <p>What's your name, lemonade seller?</p>
-      <input id="nameInput" type="text" maxlength="14" placeholder="Enter your name" />
-      <button id="startBtn">Start Selling 🍋</button>
+  <div id="nameOverlay">
+    <div class="nameBox">
+      <h1>🍋 Lemonade Venture</h1>
+      <p>What should we call the owner of this stall?</p>
+      <input id="nameInput" type="text" maxlength="14" placeholder="Enter your name" autocomplete="off">
+      <button id="startBtn">Open the stall!</button>
     </div>
   </div>
 
+  <div id="makerOverlay" class="hidden">
+    <div class="makerBox">
+      <button id="makerClose" class="makerClose">✕</button>
+      <h2>🍋 Lemonade Maker</h2>
+      <div class="levelBadge">Level <span id="makerLevelEl">1</span></div>
+
+      <div class="statRow"><span>Price per cup</span><span id="makerPriceEl">$3</span></div>
+      <div class="statRow"><span>Time to make</span><span id="makerTimeEl">5.0s</span></div>
+
+      <button id="upgradeBtn">
+        Upgrade Price +$<span id="upgradeDeltaEl">2</span>
+        <small>Cost: $<span id="upgradeCostEl">10</span></small>
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
-  var state = { name: "", served: 0, cash: 0, current: null, busy: false };
+(function(){
+  "use strict";
 
-  var bubble = document.getElementById("bubble");
-  var customer = document.getElementById("customer");
-  var nextBtn = document.getElementById("nextBtn");
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const moneyCountEl = document.getElementById('moneyCount');
+  const moneyDisplayEl = document.getElementById('moneyDisplay');
+  const nameOverlay = document.getElementById('nameOverlay');
+  const nameInput = document.getElementById('nameInput');
+  const startBtn = document.getElementById('startBtn');
 
-  function say(text) {
-    bubble.textContent = text;
-    bubble.classList.add("show");
+  const makerOverlay = document.getElementById('makerOverlay');
+  const makerClose = document.getElementById('makerClose');
+  const makerLevelEl = document.getElementById('makerLevelEl');
+  const makerPriceEl = document.getElementById('makerPriceEl');
+  const makerTimeEl = document.getElementById('makerTimeEl');
+  const upgradeBtn = document.getElementById('upgradeBtn');
+  const upgradeDeltaEl = document.getElementById('upgradeDeltaEl');
+  const upgradeCostEl = document.getElementById('upgradeCostEl');
+
+  // ---------------------------------------------------------------
+  // Layout constants (top-down plot, inspired by Eatventure)
+  // ---------------------------------------------------------------
+  const PLOT   = { x: 130, y: 90,  w: 640, h: 430, r: 22 };
+  const BENCH  = { x: 250, y: 150, w: 400, h: 46,  r: 10 };
+  const MAKER  = { x: 210, y: 380, w: 62, h: 82 }; // small countertop juice machine
+
+  const CUSTOMER_SPOT = { x: 450, y: 118 };
+  const SERVE_SPOT    = { x: 450, y: 232 };
+  const MAKER_SPOT    = { x: 248, y: 372 };
+  const IDLE_SPOT      = { x: 470, y: 480 };
+
+  const BASE_MAKING_MS   = 5000;
+  const SPAWN_MIN_MS     = 1200;
+  const SPAWN_MAX_MS     = 2000;
+  const WALK_SPEED        = 210; // px / sec
+
+  const HAIR_COLORS  = ['#5b3a29', '#2f2f2f', '#8a5a2b', '#c95b2e', '#3a2b1a'];
+  const SHIRT_COLORS = ['#e05a72', '#7a63e0', '#4fb0e0', '#e0a34f', '#57c48a'];
+
+  // ---------------------------------------------------------------
+  // Maker upgrade progression
+  // ---------------------------------------------------------------
+  const BASE_PRICE       = 3;
+  const BASE_UPGRADE_COST = 10;
+  const COST_GROWTH       = 1.6;   // upgrade cost multiplies by this each level
+  const PRICE_STEP_BASE   = 2;     // price increase grows with level too
+  const PRICE_STEP_GROWTH = 1.4;
+
+  let makerLevel = 1;
+  let currentPrice = BASE_PRICE;
+
+  function nextUpgradeCost(){
+    return Math.round(BASE_UPGRADE_COST * Math.pow(COST_GROWTH, makerLevel - 1));
   }
-  function hideBubble() { bubble.classList.remove("show"); }
-
-  function updateHud() {
-    document.getElementById("hudName").textContent = state.name;
-    document.getElementById("hudServed").textContent = state.served;
-    document.getElementById("hudCash").textContent = state.cash;
+  function nextPriceIncrease(){
+    return Math.round(PRICE_STEP_BASE + (makerLevel - 1) * PRICE_STEP_GROWTH);
   }
 
-  // start
-  document.getElementById("startBtn").addEventListener("click", startGame);
-  document.getElementById("nameInput").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") startGame();
+  function refreshMakerPanel(){
+    makerLevelEl.textContent = makerLevel;
+    makerPriceEl.textContent = '$' + currentPrice;
+    makerTimeEl.textContent = (BASE_MAKING_MS / 1000).toFixed(1) + 's';
+    upgradeDeltaEl.textContent = nextPriceIncrease();
+    const cost = nextUpgradeCost();
+    upgradeCostEl.textContent = cost;
+    if (money < cost){
+      upgradeBtn.classList.add('cantAfford');
+    } else {
+      upgradeBtn.classList.remove('cantAfford');
+    }
+  }
+
+  function buyUpgrade(){
+    const cost = nextUpgradeCost();
+    if (money < cost) {
+      blip(180, 0.12, 'sawtooth', 0.08); // gentle "nope" buzz
+      return;
+    }
+    money -= cost;
+    currentPrice += nextPriceIncrease();
+    makerLevel += 1;
+    playUpgradeSound();
+    refreshMakerPanel();
+  }
+
+  // ---------------------------------------------------------------
+  // Game state
+  // ---------------------------------------------------------------
+  let playerName = 'Owner';
+  let money = 0;
+  let displayedMoney = 0;
+
+  const owner = {
+    x: IDLE_SPOT.x,
+    y: IDLE_SPOT.y,
+    state: 'idle',      // idle | walkToMaker | making | walkToCustomer | walkBack
+    makingElapsed: 0,
+    facing: 1,
+    bounce: 0
+  };
+
+  let customer = null;    // only one customer at a time: {x,y,hair,shirt,alpha,happy,leaving}
+  let started = false;
+  let lastTime = 0;
+  let spawnTimeoutId = null;
+  let makerPanelOpen = false;
+
+  let floatingTexts = [];  // {x,y,text,vy,alpha,scale}
+  let coinParticles = [];  // {sx,sy,ex,ey,t,dur}
+  let spoutDrip = 0;       // >0 briefly when an order finishes, for a drip burst
+
+  let audioCtx = null;
+
+  // ---------------------------------------------------------------
+  // Sound (tiny synthesized effects, no external files needed)
+  // ---------------------------------------------------------------
+  function getAudio(){
+    if (!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    return audioCtx;
+  }
+
+  function blip(freq, duration, type, gainPeak, delay){
+    const ac = getAudio();
+    if (!ac) return;
+    const t0 = ac.currentTime + (delay || 0);
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(gainPeak || 0.15, t0 + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+    osc.connect(gain);
+    gain.connect(ac.destination);
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.02);
+  }
+
+  function playCoinSound(){
+    blip(880, 0.12, 'triangle', 0.12, 0);
+    blip(1320, 0.14, 'triangle', 0.10, 0.06);
+  }
+  function playPourSound(){ blip(300, 0.25, 'sawtooth', 0.05); }
+  function playUpgradeSound(){
+    blip(520, 0.1, 'square', 0.09, 0);
+    blip(700, 0.1, 'square', 0.09, 0.08);
+    blip(940, 0.16, 'square', 0.10, 0.16);
+  }
+
+  // ---------------------------------------------------------------
+  // Name entry
+  // ---------------------------------------------------------------
+  function beginGame(){
+    const raw = nameInput.value.trim();
+    playerName = raw.length ? raw.slice(0, 14) : 'Owner';
+    nameOverlay.classList.add('hidden');
+    started = true;
+    lastTime = performance.now();
+    getAudio();
+    scheduleNextSpawn(500);
+    requestAnimationFrame(loop);
+  }
+
+  startBtn.addEventListener('click', beginGame);
+  nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') beginGame(); });
+  window.addEventListener('load', () => nameInput.focus());
+
+  // ---------------------------------------------------------------
+  // Maker upgrade panel open/close
+  // ---------------------------------------------------------------
+  function openMakerPanel(){
+    makerPanelOpen = true;
+    refreshMakerPanel();
+    makerOverlay.classList.remove('hidden');
+  }
+  function closeMakerPanel(){
+    makerPanelOpen = false;
+    makerOverlay.classList.add('hidden');
+  }
+
+  makerClose.addEventListener('click', closeMakerPanel);
+  makerOverlay.addEventListener('click', (e) => {
+    if (e.target === makerOverlay) closeMakerPanel(); // click on backdrop closes it
+  });
+  upgradeBtn.addEventListener('click', buyUpgrade);
+
+  canvas.addEventListener('click', (e) => {
+    if (!started) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    const withinMaker = x >= MAKER.x - 12 && x <= MAKER.x + MAKER.w + 12 &&
+                         y >= MAKER.y - 24 && y <= MAKER.y + MAKER.h + 20;
+
+    if (withinMaker) openMakerPanel();
   });
 
-  function startGame() {
-    var val = document.getElementById("nameInput").value.trim();
-    state.name = val || "Chef";
-    document.getElementById("meTag").textContent = state.name;
-    updateHud();
-    document.getElementById("overlay").style.display = "none";
-    nextCustomer();
+  // ---------------------------------------------------------------
+  // Single-customer order flow (one customer, one lemonade, at a time)
+  // ---------------------------------------------------------------
+  function scheduleNextSpawn(delay){
+    clearTimeout(spawnTimeoutId);
+    const d = delay !== undefined ? delay : (SPAWN_MIN_MS + Math.random() * (SPAWN_MAX_MS - SPAWN_MIN_MS));
+    spawnTimeoutId = setTimeout(spawnCustomer, d);
   }
 
-  // move customer toward a target position
-  function walkTo(target, done) {
-    var pos = parseFloat(customer.style.left) || -80;
-    var step = pos < target ? 6 : -6;
-    var timer = setInterval(function () {
-      pos += step;
-      if ((step > 0 && pos >= target) || (step < 0 && pos <= target)) {
-        pos = target; clearInterval(timer); if (done) done();
-      }
-      customer.style.left = pos + "px";
-    }, 20);
+  function spawnCustomer(){
+    if (customer) return; // never more than one customer at a time
+    customer = {
+      x: CUSTOMER_SPOT.x + 40,
+      y: CUSTOMER_SPOT.y - 30,
+      tx: CUSTOMER_SPOT.x,
+      ty: CUSTOMER_SPOT.y,
+      hair: HAIR_COLORS[Math.floor(Math.random() * HAIR_COLORS.length)],
+      shirt: SHIRT_COLORS[Math.floor(Math.random() * SHIRT_COLORS.length)],
+      alpha: 0,
+      happy: 0,
+      leaving: false
+    };
   }
 
-  function nextCustomer() {
-    state.busy = true;
-    nextBtn.disabled = true;
-    nextBtn.textContent = "Customer approaching…";
-    hideBubble();
-    customer.style.left = "-80px";
-    customer.querySelector(".body").textContent = "🧍";
-    // walk up to the bench on the right side
-    walkTo(470, function () {
-      var qty = 1 + Math.floor(Math.random() * 3); // 1-3 lemonades
-      state.current = qty;
-      say("Hi! Can I get " + qty + " lemonade" + (qty > 1 ? "s" : "") + ", please?");
-      nextBtn.disabled = false;
-      nextBtn.textContent = "Make " + qty + " lemonade" + (qty > 1 ? "s" : "");
-      state.busy = false;
+  function tryServeNext(){
+    if (owner.state === 'idle' && customer && !customer.leaving && customer.alpha >= 1){
+      owner.state = 'walkToMaker';
+    }
+  }
+
+  function deliverOrder(){
+    if (customer){
+      money += currentPrice;
+      customer.happy = 1;
+      customer.leaving = true;
+
+      spawnFloatingText(SERVE_SPOT.x, SERVE_SPOT.y - 50, '+$' + currentPrice);
+      spawnCoinParticle(SERVE_SPOT.x, SERVE_SPOT.y - 30);
+      playCoinSound();
+      if (makerPanelOpen) refreshMakerPanel();
+    }
+    owner.state = 'walkBack';
+  }
+
+  function spawnFloatingText(x, y, text){
+    floatingTexts.push({ x, y, text, vy: -38, alpha: 1, scale: 0.6 });
+  }
+
+  function spawnCoinParticle(x, y){
+    coinParticles.push({
+      sx: x, sy: y,
+      ex: canvas.width - 78, ey: 34,
+      t: 0, dur: 0.6 + Math.random() * 0.15
     });
   }
 
-  // the character makes the order based on what the customer asked
-  function makeOrder() {
-    if (state.busy || state.current == null) return;
-    state.busy = true;
-    nextBtn.disabled = true;
-    var qty = state.current;
-    say(state.name + " makes " + qty + " lemonade" + (qty > 1 ? "s" : "") + "… 🍋");
-    nextBtn.textContent = "Making…";
+  // ---------------------------------------------------------------
+  // Movement helper
+  // ---------------------------------------------------------------
+  function moveToward(entity, tx, ty, dt){
+    const dx = tx - entity.x;
+    const dy = ty - entity.y;
+    const dist = Math.hypot(dx, dy);
+    const step = WALK_SPEED * dt;
 
-    setTimeout(function () {
-      customer.querySelector(".body").textContent = "😋";
-      say("Here you go! " + qty + " fresh lemonade" + (qty > 1 ? "s" : "") + " 🥤");
-      state.served += qty;
-      state.cash += qty * 2; // $2 each
-      state.current = null;
-      updateHud();
-
-      setTimeout(function () {
-        say("Thank you! 😊");
-        walkTo(760, function () {
-          state.busy = false;
-          nextBtn.disabled = false;
-          nextBtn.textContent = "Next customer";
-          nextBtn.onclick = function () { nextBtn.onclick = defaultClick; nextCustomer(); };
-        });
-      }, 900);
-    }, 1100);
+    if (dist <= step || dist < 0.5){
+      entity.x = tx;
+      entity.y = ty;
+      return true;
+    }
+    entity.facing = dx < 0 ? -1 : 1;
+    entity.x += (dx / dist) * step;
+    entity.y += (dy / dist) * step;
+    return false;
   }
 
-  function defaultClick() { makeOrder(); }
-  nextBtn.onclick = defaultClick;
+  // ---------------------------------------------------------------
+  // Update
+  // ---------------------------------------------------------------
+  function update(dt, now){
+    switch (owner.state){
+      case 'walkToMaker':
+        if (moveToward(owner, MAKER_SPOT.x, MAKER_SPOT.y, dt)){
+          owner.state = 'making';
+          owner.makingElapsed = 0;
+          playPourSound();
+        }
+        break;
+
+      case 'making':
+        owner.makingElapsed += dt * 1000;
+        if (owner.makingElapsed >= BASE_MAKING_MS){
+          owner.state = 'walkToCustomer';
+          spoutDrip = 1;
+        }
+        break;
+
+      case 'walkToCustomer':
+        if (moveToward(owner, SERVE_SPOT.x, SERVE_SPOT.y, dt)){
+          deliverOrder();
+        }
+        break;
+
+      case 'walkBack':
+        if (moveToward(owner, IDLE_SPOT.x, IDLE_SPOT.y, dt)){
+          owner.state = 'idle';
+        }
+        break;
+
+      default:
+        tryServeNext();
+        break;
+    }
+
+    if (spoutDrip > 0) spoutDrip = Math.max(0, spoutDrip - dt * 1.2);
+
+    if (customer){
+      if (customer.leaving){
+        customer.alpha = Math.max(0, customer.alpha - dt * 1.6);
+        customer.y -= dt * 55;
+        customer.happy = Math.max(0, customer.happy - dt * 0.8);
+        if (customer.alpha <= 0){
+          customer = null;
+          scheduleNextSpawn();
+        }
+      } else {
+        if (customer.alpha < 1) customer.alpha = Math.min(1, customer.alpha + dt * 3);
+        moveToward(customer, customer.tx, customer.ty, dt);
+      }
+    }
+
+    for (let i = floatingTexts.length - 1; i >= 0; i--){
+      const f = floatingTexts[i];
+      f.y += f.vy * dt;
+      f.alpha -= dt * 1.1;
+      f.scale = Math.min(1, f.scale + dt * 4);
+      if (f.alpha <= 0) floatingTexts.splice(i, 1);
+    }
+
+    for (let i = coinParticles.length - 1; i >= 0; i--){
+      const p = coinParticles[i];
+      p.t += dt / p.dur;
+      if (p.t >= 1){
+        coinParticles.splice(i, 1);
+        bumpMoneyUI();
+      }
+    }
+
+    if (Math.abs(money - displayedMoney) > 0.5){
+      displayedMoney += (money - displayedMoney) * Math.min(1, dt * 6);
+    } else {
+      displayedMoney = money;
+    }
+    moneyCountEl.textContent = Math.round(displayedMoney);
+
+    owner.bounce = Math.sin(now / 260) * (owner.state === 'idle' ? 1.5 : 2.5);
+  }
+
+  function bumpMoneyUI(){
+    moneyDisplayEl.classList.remove('bump');
+    void moneyDisplayEl.offsetWidth;
+    moneyDisplayEl.classList.add('bump');
+    setTimeout(() => moneyDisplayEl.classList.remove('bump'), 140);
+  }
+
+  // ---------------------------------------------------------------
+  // Drawing helpers
+  // ---------------------------------------------------------------
+  function roundRect(x, y, w, h, r, fill, stroke, lineWidth){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y,     x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x,     y + h, r);
+    ctx.arcTo(x,     y + h, x,     y,     r);
+    ctx.arcTo(x,     y,     x + w, y,     r);
+    ctx.closePath();
+    if (fill){ ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke){ ctx.lineWidth = lineWidth || 2; ctx.strokeStyle = stroke; ctx.stroke(); }
+  }
+
+  function drawUmbrella(cx, cy, radius, colorA, colorB){
+    const segments = 10;
+    for (let i = 0; i < segments; i++){
+      const a0 = (Math.PI / segments) * i;
+      const a1 = (Math.PI / segments) * (i + 1);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, Math.PI + a0, Math.PI + a1);
+      ctx.closePath();
+      ctx.fillStyle = (i % 2 === 0) ? colorA : colorB;
+      ctx.fill();
+    }
+    ctx.fillStyle = '#caa15a';
+    ctx.fillRect(cx - 4, cy - 4, 8, 46);
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 50, radius * 0.5, 8, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.fill();
+  }
+
+  function drawBackground(){
+    ctx.fillStyle = '#6bbf59';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    for (let i = 0; i < 40; i++){
+      const gx = (i * 137) % canvas.width;
+      const gy = (i * 89) % canvas.height;
+      ctx.beginPath();
+      ctx.arc(gx, gy, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawPlot(){
+    roundRect(PLOT.x + 6, PLOT.y + 10, PLOT.w, PLOT.h, PLOT.r, 'rgba(0,0,0,0.12)');
+    roundRect(PLOT.x, PLOT.y, PLOT.w, PLOT.h, PLOT.r, '#c9ccce', '#b3b7ba', 4);
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1;
+    for (let gx = PLOT.x + 40; gx < PLOT.x + PLOT.w; gx += 40){
+      ctx.beginPath();
+      ctx.moveTo(gx, PLOT.y + 6);
+      ctx.lineTo(gx, PLOT.y + PLOT.h - 6);
+      ctx.stroke();
+    }
+  }
+
+  function drawBench(){
+    roundRect(BENCH.x + 4, BENCH.y + 6, BENCH.w, BENCH.h, BENCH.r, 'rgba(0,0,0,0.12)');
+    roundRect(BENCH.x, BENCH.y, BENCH.w, BENCH.h, BENCH.r, '#f0c987', '#c99a55', 3);
+    ctx.fillStyle = '#c99a55';
+    ctx.fillRect(BENCH.x + 20, BENCH.y + BENCH.h - 2, 6, 14);
+    ctx.fillRect(BENCH.x + BENCH.w - 26, BENCH.y + BENCH.h - 2, 6, 14);
+  }
+
+  // ---- The lemonade maker: a small, person-scaled juice machine ----
+  function drawMaker(){
+    const mx = MAKER.x, my = MAKER.y, mw = MAKER.w, mh = MAKER.h;
+
+    const standH   = mh * 0.30;
+    const tankH    = mh * 0.62;
+    const tankW    = mw * 0.72;
+    const tankX    = mx + (mw - tankW) / 2;
+    const tankY    = my;
+
+    // shadow
+    ctx.beginPath();
+    ctx.ellipse(mx + mw / 2, my + mh + 4, mw * 0.6, 6, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fill();
+
+    // small cart / stand
+    roundRect(mx - 4, my + mh - standH, mw + 8, standH, 6, '#c8965a', '#9c6a34', 2);
+    ctx.fillStyle = '#5a3f22';
+    ctx.beginPath(); ctx.arc(mx + 6, my + mh + 2, 3.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mx + mw - 6, my + mh + 2, 3.5, 0, Math.PI * 2); ctx.fill();
+
+    // countertop
+    roundRect(mx - 6, my + mh - standH - 6, mw + 12, 8, 3, '#fff8e7', '#e0c88f', 1.5);
+
+    // glass dispenser tank
+    roundRect(tankX, tankY, tankW, tankH, 8, 'rgba(255,255,255,0.55)', '#d8dade', 1.5);
+
+    ctx.save();
+    roundRect(tankX + 2, tankY + 2, tankW - 4, tankH - 4, 6);
+    ctx.clip();
+
+    const fillPct = owner.state === 'making'
+      ? Math.min(1, owner.makingElapsed / BASE_MAKING_MS)
+      : (owner.state === 'walkToCustomer' || owner.state === 'walkBack' ? 1 : 0.15);
+    const liquidTop = tankY + tankH * (1 - fillPct);
+
+    ctx.fillStyle = '#ffd23f';
+    ctx.fillRect(tankX, liquidTop, tankW, tankH);
+
+    if (fillPct > 0.02){
+      ctx.beginPath();
+      const wob = Math.sin(performance.now() / 180) * 1.4;
+      ctx.moveTo(tankX, liquidTop + wob);
+      ctx.lineTo(tankX + tankW, liquidTop - wob);
+      ctx.lineTo(tankX + tankW, liquidTop + 4);
+      ctx.lineTo(tankX, liquidTop + 4);
+      ctx.closePath();
+      ctx.fillStyle = '#ffe27a';
+      ctx.fill();
+    }
+    ctx.restore();
+
+    roundRect(tankX, tankY, tankW, tankH, 8, null, '#d8dade', 1.5);
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(tankX + tankW * 0.28, tankY + 10, 2.6, 12, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // lemon lid on top of the tank
+    const lidCx = tankX + tankW / 2, lidCy = tankY - 4;
+    const lidR = mw * 0.14;
+    ctx.beginPath();
+    ctx.arc(lidCx, lidCy, lidR, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffd23f';
+    ctx.fill();
+    ctx.strokeStyle = '#f2a900';
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+    for (let a = 0; a < Math.PI * 2; a += Math.PI / 4){
+      ctx.beginPath();
+      ctx.moveTo(lidCx, lidCy);
+      ctx.lineTo(lidCx + Math.cos(a) * lidR * 0.8, lidCy + Math.sin(a) * lidR * 0.8);
+      ctx.stroke();
+    }
+
+    // spout + tap lever
+    const spoutX = tankX + tankW / 2;
+    const spoutY = tankY + tankH;
+    ctx.fillStyle = '#e8eaee';
+    ctx.fillRect(spoutX - 3, spoutY - 1, 6, 6);
+    ctx.beginPath();
+    ctx.moveTo(spoutX - 4, spoutY + 5);
+    ctx.lineTo(spoutX + 4, spoutY + 5);
+    ctx.lineTo(spoutX, spoutY + 10);
+    ctx.closePath();
+    ctx.fillStyle = '#c8cdd2';
+    ctx.fill();
+
+    if (spoutDrip > 0){
+      ctx.fillStyle = `rgba(255,210,63,${spoutDrip})`;
+      for (let i = 0; i < 3; i++){
+        const dy = (1 - spoutDrip) * (10 + i * 6);
+        ctx.beginPath();
+        ctx.arc(spoutX + (i - 1) * 4, spoutY + 10 + dy, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // small sign on the cart + level badge
+    roundRect(mx - 3, my + mh - standH + 3, mw + 6, 12, 3, '#ff6b5b', '#c8483b', 1.2);
+    ctx.font = '700 8px "Baloo 2", sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('LVL ' + makerLevel, mx + mw / 2, my + mh - standH + 9);
+
+    // progress bar while making
+    if (owner.state === 'making'){
+      const pct = Math.min(1, owner.makingElapsed / BASE_MAKING_MS);
+      const barW = mw + 16, barX = mx - 8, barY = my + mh + 12;
+      roundRect(barX, barY, barW, 7, 3.5, '#00000022');
+      roundRect(barX, barY, barW * pct, 7, 3.5, '#ffd23f');
+    }
+
+    // little "upgrade available" badge, angled, top-right of the machine
+    if (!makerPanelOpen && money >= nextUpgradeCost()){
+      const pulse = 1 + Math.sin(performance.now() / 220) * 0.08;
+      drawUpgradeBadge(mx + mw + 4, tankY - 6, pulse);
+    }
+  }
+
+  function drawUpgradeBadge(cx, cy, scale){
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-0.22); // angled, like a little notification tag
+    ctx.scale(scale, scale);
+
+    // drop shadow
+    ctx.beginPath();
+    ctx.arc(1, 2, 11, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.fill();
+
+    // red circle
+    ctx.beginPath();
+    ctx.arc(0, 0, 11, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff3b3b';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    // exclamation mark
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-1.6, -6, 3.2, 7);
+    ctx.beginPath();
+    ctx.arc(0, 4.5, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawPerson(x, y, headColor, shirtColor, label, facing, bounce, happy){
+    ctx.save();
+    ctx.translate(x, y + (bounce || 0));
+
+    ctx.beginPath();
+    ctx.ellipse(0, 26, 20, 7, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fill();
+
+    const jump = happy ? -Math.sin(happy * Math.PI) * 10 : 0;
+    ctx.translate(0, jump);
+
+    roundRect(-15, -6, 30, 34, 12, shirtColor);
+
+    ctx.beginPath();
+    ctx.arc(0, -20, 16, 0, Math.PI * 2);
+    ctx.fillStyle = '#f4c89a';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(0, -24, 16, Math.PI, Math.PI * 2);
+    ctx.fillStyle = headColor;
+    ctx.fill();
+
+    ctx.fillStyle = '#3a2b1a';
+    ctx.beginPath();
+    ctx.arc(facing >= 0 ? 5 : -5, -20, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (happy > 0.05){
+      ctx.font = (14 + happy * 6) + 'px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.globalAlpha = happy;
+      ctx.fillText('✨', 16, -34);
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.restore();
+
+    if (label){
+      ctx.font = '700 13px "Baloo 2", sans-serif';
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.strokeText(label, x, y - 46);
+      ctx.fillText(label, x, y - 46);
+    }
+  }
+
+  function drawSpeechBubble(x, y, alpha){
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const w = 46, h = 40;
+    const bx = x - w / 2, by = y - h - 18;
+    roundRect(bx, by, w, h, 12, '#ffffff', '#00000022', 1.5);
+    ctx.beginPath();
+    ctx.moveTo(x - 7, by + h);
+    ctx.lineTo(x, by + h + 9);
+    ctx.lineTo(x + 7, by + h);
+    ctx.closePath();
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.font = '24px "Nunito", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🍋', x, by + h / 2);
+    ctx.restore();
+  }
+
+  function drawFloatingTexts(){
+    floatingTexts.forEach(f => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, f.alpha);
+      ctx.font = '800 ' + Math.round(20 * f.scale) + 'px "Baloo 2", sans-serif';
+      ctx.fillStyle = '#2e8b3d';
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#ffffff';
+      ctx.strokeText(f.text, f.x, f.y);
+      ctx.fillText(f.text, f.x, f.y);
+      ctx.restore();
+    });
+  }
+
+  function drawCoinParticles(){
+    coinParticles.forEach(p => {
+      const t = p.t;
+      const x = p.sx + (p.ex - p.sx) * t;
+      const arc = Math.sin(Math.PI * t) * -70;
+      const y = p.sy + (p.ey - p.sy) * t + arc;
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffd23f';
+      ctx.fill();
+      ctx.strokeStyle = '#b97a00';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+  }
+
+  function draw(now){
+    drawBackground();
+    drawUmbrella(70, 470, 78, '#6fc3e8', '#f4f1e6');
+    drawUmbrella(830, 470, 78, '#6fc3e8', '#f4f1e6');
+
+    drawPlot();
+    drawBench();
+    drawMaker();
+
+    if (customer){
+      const bob = customer.leaving ? 0 : Math.sin(now / 300) * 1.2;
+      drawPerson(customer.x, customer.y, customer.hair, customer.shirt, 'Customer', -1, bob, customer.happy);
+      if (!customer.leaving) drawSpeechBubble(customer.x, customer.y - 30, customer.alpha);
+    }
+
+    drawPerson(owner.x, owner.y, '#3a2b1a', '#4fb0e0', playerName, owner.facing, owner.bounce, 0);
+
+    drawFloatingTexts();
+    drawCoinParticles();
+  }
+
+  // ---------------------------------------------------------------
+  // Main loop
+  // ---------------------------------------------------------------
+  function loop(now){
+    const dt = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+
+    update(dt, now);
+    draw(now);
+
+    if (started) requestAnimationFrame(loop);
+  }
+
+  draw(0); // initial paint behind the name overlay
+
+})();
 </script>
 </body>
 </html>
