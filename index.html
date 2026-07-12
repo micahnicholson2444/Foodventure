@@ -887,11 +887,12 @@
       <div class="milestoneBarTrack"><div id="renovateBarFill"></div></div>
 
       <div class="reqList" id="reqListEl">
-        <div class="reqRow" id="reqMoneyRow"><span class="reqCheck">✓</span><span class="reqText">Save $7,500</span></div>
+        <div class="reqRow" id="reqMoneyRow"><span class="reqCheck">✓</span><span class="reqText">Save $25,000</span></div>
         <div class="reqRow" id="reqAdvertisingRow"><span class="reqCheck">✓</span><span class="reqText">Advertising upgrade</span></div>
         <div class="reqRow" id="reqManagementRow"><span class="reqCheck">✓</span><span class="reqText">Management upgrade</span></div>
         <div class="reqRow" id="reqHasteRow"><span class="reqCheck">✓</span><span class="reqText">Haste upgrade</span></div>
         <div class="reqRow" id="reqReviewsRow"><span class="reqCheck">✓</span><span class="reqText">Reviews upgrade</span></div>
+        <div class="reqRow" id="reqProfitsRow"><span class="reqCheck">✓</span><span class="reqText">Profits upgrade</span></div>
         <div class="reqRow" id="reqLevelRow"><span class="reqCheck">✓</span><span class="reqText">Lemonade Maker at Lvl 25</span></div>
       </div>
 
@@ -1044,6 +1045,78 @@
       </div>
       <button class="buyUpgradeBtn" id="reviewsBuyBtn">Buy<small>$5000</small></button>
     </div>
+
+    <div class="upgradeCard">
+      <div class="upgradeCardTop">
+        <div class="upgradeIcon">💰</div>
+        <div class="upgradeInfo">
+          <h3>Profits</h3>
+          <p>Doubles the price of every lemonade sold.</p>
+        </div>
+      </div>
+      <button class="buyUpgradeBtn" id="profitsBuyBtn">Buy<small>$12500</small></button>
+    </div>
+
+    <div id="classicUpgradesSection" class="hidden">
+      <div class="upgradesHeader" style="margin:14px 0 8px;">
+        <h2 style="font-size:16px;">Classic Stand</h2>
+      </div>
+
+      <div class="upgradeCard">
+        <div class="upgradeCardTop">
+          <div class="upgradeIcon">🧽</div>
+          <div class="upgradeInfo">
+            <h3>Clean Pumps</h3>
+            <p>Halves the time it takes to make a hotdog.</p>
+          </div>
+        </div>
+        <button class="buyUpgradeBtn" id="cleanPumpsBuyBtn">Buy<small>$17500</small></button>
+      </div>
+
+      <div class="upgradeCard">
+        <div class="upgradeCardTop">
+          <div class="upgradeIcon">📰</div>
+          <div class="upgradeInfo">
+            <h3>Newspapers</h3>
+            <p>Attracts an extra customer to your stall at the same time.</p>
+          </div>
+        </div>
+        <button class="buyUpgradeBtn" id="newspapersBuyBtn">Buy<small>$20000</small></button>
+      </div>
+
+      <div class="upgradeCard">
+        <div class="upgradeCardTop">
+          <div class="upgradeIcon">💪</div>
+          <div class="upgradeInfo">
+            <h3>Hard Work</h3>
+            <p>Hires another Worker who helps serve customers.</p>
+          </div>
+        </div>
+        <button class="buyUpgradeBtn" id="hardWorkBuyBtn">Buy<small>$35000</small></button>
+      </div>
+
+      <div class="upgradeCard">
+        <div class="upgradeCardTop">
+          <div class="upgradeIcon">🍅</div>
+          <div class="upgradeInfo">
+            <h3>Ketchup</h3>
+            <p>Doubles the price of every hotdog sold.</p>
+          </div>
+        </div>
+        <button class="buyUpgradeBtn" id="ketchupBuyBtn">Buy<small>$60000</small></button>
+      </div>
+
+      <div class="upgradeCard">
+        <div class="upgradeCardTop">
+          <div class="upgradeIcon">🍋</div>
+          <div class="upgradeInfo">
+            <h3>Zesty Lemons</h3>
+            <p>Doubles the price of every lemonade sold.</p>
+          </div>
+        </div>
+        <button class="buyUpgradeBtn" id="zestyLemonsBuyBtn">Buy<small>$75000</small></button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1116,6 +1189,13 @@
   const managementBuyBtn = document.getElementById('managementBuyBtn');
   const hasteBuyBtn = document.getElementById('hasteBuyBtn');
   const reviewsBuyBtn = document.getElementById('reviewsBuyBtn');
+  const profitsBuyBtn = document.getElementById('profitsBuyBtn');
+  const classicUpgradesSection = document.getElementById('classicUpgradesSection');
+  const cleanPumpsBuyBtn = document.getElementById('cleanPumpsBuyBtn');
+  const newspapersBuyBtn = document.getElementById('newspapersBuyBtn');
+  const hardWorkBuyBtn = document.getElementById('hardWorkBuyBtn');
+  const ketchupBuyBtn = document.getElementById('ketchupBuyBtn');
+  const zestyLemonsBuyBtn = document.getElementById('zestyLemonsBuyBtn');
 
   const renovateToggleBtn = document.getElementById('renovateToggleBtn');
   const renovateBadge = document.getElementById('renovateBadge');
@@ -1131,6 +1211,7 @@
   const reqManagementRow = document.getElementById('reqManagementRow');
   const reqHasteRow = document.getElementById('reqHasteRow');
   const reqReviewsRow = document.getElementById('reqReviewsRow');
+  const reqProfitsRow = document.getElementById('reqProfitsRow');
   const reqLevelRow = document.getElementById('reqLevelRow');
 
   // ---------------------------------------------------------------
@@ -1142,6 +1223,8 @@
   const IDLE_SPOT  = { x: 470, y: 480 };
   // Second worker's idle spot (used once the Management upgrade is bought)
   const IDLE_SPOT2 = { x: 400, y: 480 };
+  // Third worker's idle spot (used once the Hard Work upgrade is bought)
+  const IDLE_SPOT3 = { x: 330, y: 480 };
 
   // Offset from a machine's top-left corner (given its own w/h) to the
   // spot a worker stands at to operate it. Same offset used for every
@@ -1149,11 +1232,12 @@
   const SLOT_OFFSET = { dx: 38, dy: -8 };
   const MAKER_GAP    = 30; // gap between a machine and its "extension" twin
 
-  // One slot per customer that can be waiting at once. A second slot only
-  // becomes usable once the Advertising upgrade is purchased.
+  // One slot per customer that can be waiting at once. A second slot
+  // becomes usable once Advertising is bought, a third once Newspapers is.
   const CUSTOMER_SPOTS = [
     { spot: { x: 450, y: 118 }, serve: { x: 450, y: 232 } },
-    { spot: { x: 560, y: 118 }, serve: { x: 560, y: 232 } }
+    { spot: { x: 560, y: 118 }, serve: { x: 560, y: 232 } },
+    { spot: { x: 340, y: 118 }, serve: { x: 340, y: 232 } }
   ];
 
   const SPAWN_MIN_MS     = 1200;
@@ -1189,7 +1273,7 @@
     hotdog: {
       id: 'hotdog', name: 'Hotdog Maker', icon: '🌭',
       basePrice: 750, baseUpgradeCost: 500, costGrowth: 1.24,
-      priceStepBase: 500, priceStepGrowth: 350,
+      priceStepBase: 25, priceStepGrowth: 15,
       baseMakingMs: 10000,
       unlockCost: 5000,
       maxLevel: 50,
@@ -1215,11 +1299,26 @@
   const MANAGEMENT_COST  = 500;
   const HASTE_COST       = 1500;
   const REVIEWS_COST     = 5000;
+  const PROFITS_COST     = 12500;
+
+  // Classic Stand tier (hotdog-related) upgrades
+  const CLEAN_PUMPS_COST   = 17500;
+  const NEWSPAPERS_COST    = 20000;
+  const HARD_WORK_COST     = 35000;
+  const KETCHUP_COST       = 60000;
+  const ZESTY_LEMONS_COST  = 75000;
 
   let advertisingBought = false;
   let managementBought  = false;
   let hasteBought        = false;
   let reviewsBought      = false;
+  let profitsBought      = false;
+
+  let cleanPumpsBought   = false;
+  let newspapersBought   = false;
+  let hardWorkBought     = false;
+  let ketchupBought      = false;
+  let zestyLemonsBought  = false;
 
   let gems = 0;
 
@@ -1279,7 +1378,7 @@
   // $7500 to renovate into the next building tier. Progress resets but
   // gems (and the new building's look) persist.
   // ---------------------------------------------------------------
-  const RENOVATE_COST = 7500;
+  const RENOVATE_COST = 25000;
   const BUILDINGS = [
     {
       name: 'Lemonade Stand',
@@ -1357,7 +1456,9 @@
   }
 
   function getMakingDuration(station){
-    return hasteBought ? station.def.baseMakingMs / 2 : station.def.baseMakingMs;
+    const halved = (station.def.id === 'lemonade' && hasteBought) ||
+                   (station.def.id === 'hotdog' && cleanPumpsBought);
+    return halved ? station.def.baseMakingMs / 2 : station.def.baseMakingMs;
   }
 
   function isMaxLevel(station){
@@ -1636,18 +1737,45 @@
     }
   }
 
+  // Builds a fresh idle worker object at the given idle spot/shirt color.
+  function makeWorker(spot, shirtColor){
+    return {
+      x: spot.x, y: spot.y, idleX: spot.x, idleY: spot.y,
+      claimedStationId: null, claimedSlotIndex: null,
+      state: 'idle', makingElapsed: 0, facing: 1, bounce: 0,
+      headColor: '#3a2b1a', shirtColor: shirtColor,
+      isOwner: false, targetCustomer: null, targetItem: null
+    };
+  }
+
   function refreshUpgradesSidebar(){
     setBuyBtnState(advertisingBuyBtn, advertisingBought, ADVERTISING_COST);
     setBuyBtnState(managementBuyBtn, managementBought, MANAGEMENT_COST);
     setBuyBtnState(hasteBuyBtn, hasteBought, HASTE_COST);
     setBuyBtnState(reviewsBuyBtn, reviewsBought, REVIEWS_COST);
+    setBuyBtnState(profitsBuyBtn, profitsBought, PROFITS_COST);
+
+    classicUpgradesSection.classList.toggle('hidden', buildingIndex < 1);
+    setBuyBtnState(cleanPumpsBuyBtn, cleanPumpsBought, CLEAN_PUMPS_COST);
+    setBuyBtnState(newspapersBuyBtn, newspapersBought, NEWSPAPERS_COST);
+    setBuyBtnState(hardWorkBuyBtn, hardWorkBought, HARD_WORK_COST);
+    setBuyBtnState(ketchupBuyBtn, ketchupBought, KETCHUP_COST);
+    setBuyBtnState(zestyLemonsBuyBtn, zestyLemonsBought, ZESTY_LEMONS_COST);
   }
 
   function anyUpgradeAffordable(){
-    return (!advertisingBought && money >= ADVERTISING_COST) ||
+    const tier0 = (!advertisingBought && money >= ADVERTISING_COST) ||
            (!managementBought && money >= MANAGEMENT_COST) ||
            (!hasteBought && money >= HASTE_COST) ||
-           (!reviewsBought && money >= REVIEWS_COST);
+           (!reviewsBought && money >= REVIEWS_COST) ||
+           (!profitsBought && money >= PROFITS_COST);
+    if (tier0) return true;
+    if (buildingIndex < 1) return false;
+    return (!cleanPumpsBought && money >= CLEAN_PUMPS_COST) ||
+           (!newspapersBought && money >= NEWSPAPERS_COST) ||
+           (!hardWorkBought && money >= HARD_WORK_COST) ||
+           (!ketchupBought && money >= KETCHUP_COST) ||
+           (!zestyLemonsBought && money >= ZESTY_LEMONS_COST);
   }
 
   function refreshUpgradesBadge(){
@@ -1670,23 +1798,7 @@
     if (managementBought || money < MANAGEMENT_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
     money -= MANAGEMENT_COST;
     managementBought = true;
-    workers.push({
-      x: IDLE_SPOT2.x,
-      y: IDLE_SPOT2.y,
-      idleX: IDLE_SPOT2.x,
-      idleY: IDLE_SPOT2.y,
-      claimedStationId: null,
-      claimedSlotIndex: null,
-      state: 'idle',
-      makingElapsed: 0,
-      facing: 1,
-      bounce: 0,
-      headColor: '#3a2b1a',
-      shirtColor: '#e0a34f',
-      isOwner: false,
-      targetCustomer: null,
-      targetItem: null
-    });
+    workers.push(makeWorker(IDLE_SPOT2, '#e0a34f'));
     playUpgradeSound();
     refreshUpgradesSidebar();
   }
@@ -1708,10 +1820,72 @@
     refreshUpgradesSidebar();
   }
 
+  function buyProfits(){
+    if (profitsBought || money < PROFITS_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= PROFITS_COST;
+    profitsBought = true;
+    stations.lemonade.sellMultiplier *= 2;
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+    if (makerPanelOpen) refreshMakerPanel();
+  }
+
+  function buyCleanPumps(){
+    if (cleanPumpsBought || money < CLEAN_PUMPS_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= CLEAN_PUMPS_COST;
+    cleanPumpsBought = true;
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+    if (makerPanelOpen) refreshMakerPanel();
+  }
+
+  function buyNewspapers(){
+    if (newspapersBought || money < NEWSPAPERS_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= NEWSPAPERS_COST;
+    newspapersBought = true;
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+  }
+
+  function buyHardWork(){
+    if (hardWorkBought || money < HARD_WORK_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= HARD_WORK_COST;
+    hardWorkBought = true;
+    workers.push(makeWorker(IDLE_SPOT3, '#7a63e0'));
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+  }
+
+  function buyKetchup(){
+    if (ketchupBought || money < KETCHUP_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= KETCHUP_COST;
+    ketchupBought = true;
+    if (stations.hotdog) stations.hotdog.sellMultiplier *= 2;
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+    if (makerPanelOpen) refreshMakerPanel();
+  }
+
+  function buyZestyLemons(){
+    if (zestyLemonsBought || money < ZESTY_LEMONS_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= ZESTY_LEMONS_COST;
+    zestyLemonsBought = true;
+    stations.lemonade.sellMultiplier *= 2;
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+    if (makerPanelOpen) refreshMakerPanel();
+  }
+
   advertisingBuyBtn.addEventListener('click', buyAdvertising);
   managementBuyBtn.addEventListener('click', buyManagement);
   hasteBuyBtn.addEventListener('click', buyHaste);
   reviewsBuyBtn.addEventListener('click', buyReviews);
+  profitsBuyBtn.addEventListener('click', buyProfits);
+  cleanPumpsBuyBtn.addEventListener('click', buyCleanPumps);
+  newspapersBuyBtn.addEventListener('click', buyNewspapers);
+  hardWorkBuyBtn.addEventListener('click', buyHardWork);
+  ketchupBuyBtn.addEventListener('click', buyKetchup);
+  zestyLemonsBuyBtn.addEventListener('click', buyZestyLemons);
 
   // ---------------------------------------------------------------
   // Renovation panel open/close + logic
@@ -1723,6 +1897,7 @@
       { row: reqManagementRow, met: managementBought },
       { row: reqHasteRow, met: hasteBought },
       { row: reqReviewsRow, met: reviewsBought },
+      { row: reqProfitsRow, met: profitsBought },
       { row: reqLevelRow, met: stations.lemonade.level >= 25 }
     ];
   }
@@ -1804,9 +1979,15 @@
     managementBought = false;
     hasteBought = false;
     reviewsBought = false;
+    profitsBought = false;
+    cleanPumpsBought = false;
+    newspapersBought = false;
+    hardWorkBought = false;
+    ketchupBought = false;
+    zestyLemonsBought = false;
 
     customers = [];
-    slotAvailableAt = [0, 0];
+    slotAvailableAt = [0, 0, 0];
     clearTimeout(spawnTimeoutId);
     scheduleNextSpawn(500);
 
@@ -1904,7 +2085,8 @@
       money,
       gems,
       buildingIndex,
-      advertisingBought, managementBought, hasteBought, reviewsBought,
+      advertisingBought, managementBought, hasteBought, reviewsBought, profitsBought,
+      cleanPumpsBought, newspapersBought, hardWorkBought, ketchupBought, zestyLemonsBought,
       stations: stationsData,
       savedAt: Date.now()
     };
@@ -1922,6 +2104,12 @@
     managementBought  = !!state.managementBought;
     hasteBought       = !!state.hasteBought;
     reviewsBought     = !!state.reviewsBought;
+    profitsBought     = !!state.profitsBought;
+    cleanPumpsBought  = !!state.cleanPumpsBought;
+    newspapersBought  = !!state.newspapersBought;
+    hardWorkBought    = !!state.hardWorkBought;
+    ketchupBought     = !!state.ketchupBought;
+    zestyLemonsBought = !!state.zestyLemonsBought;
 
     initStationsForBuilding(buildingIndex);
     const savedStations = state.stations || {};
@@ -1939,7 +2127,7 @@
     });
 
     customers = [];
-    slotAvailableAt = [0, 0];
+    slotAvailableAt = [0, 0, 0];
     clearTimeout(spawnTimeoutId);
     scheduleNextSpawn(500);
 
@@ -1953,12 +2141,10 @@
     owner.targetCustomer = null;
     owner.targetItem = null;
     if (managementBought){
-      workers.push({
-        x: IDLE_SPOT2.x, y: IDLE_SPOT2.y, idleX: IDLE_SPOT2.x, idleY: IDLE_SPOT2.y,
-        claimedStationId: null, claimedSlotIndex: null,
-        state: 'idle', makingElapsed: 0, facing: 1, bounce: 0,
-        headColor: '#3a2b1a', shirtColor: '#e0a34f', isOwner: false, targetCustomer: null, targetItem: null
-      });
+      workers.push(makeWorker(IDLE_SPOT2, '#e0a34f'));
+    }
+    if (hardWorkBought){
+      workers.push(makeWorker(IDLE_SPOT3, '#7a63e0'));
     }
 
     floatingTexts = [];
@@ -2138,11 +2324,11 @@
   // second Worker too)
   // ---------------------------------------------------------------
   function maxCustomerSlots(){
-    return advertisingBought ? 2 : 1;
+    return 1 + (advertisingBought ? 1 : 0) + (newspapersBought ? 1 : 0);
   }
 
   const SLOT_EMPTY_COOLDOWN_MS = 5000; // a spot stays empty this long after a customer leaves
-  let slotAvailableAt = [0, 0]; // performance.now() timestamp when each slot can spawn again
+  let slotAvailableAt = [0, 0, 0]; // performance.now() timestamp when each slot can spawn again
 
   function scheduleNextSpawn(delay){
     clearTimeout(spawnTimeoutId);
