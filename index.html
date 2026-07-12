@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Lemonade Venture</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
@@ -37,7 +37,8 @@
     background:linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 55%, var(--grass) 55%, var(--grass-dark) 100%);
     font-family:'Nunito', sans-serif;
     overflow:hidden;
-    padding:10px;
+    padding:8px;
+    padding:max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
     -webkit-user-select:none;
     user-select:none;
     -webkit-touch-callout:none;
@@ -50,7 +51,7 @@
 
   #gameWrap{
     position:relative;
-    width:min(900px, 96vw, 132vh, 132svh);
+    width:min(900px, 97vw, 106vh, 106svh);
     filter:drop-shadow(0 18px 30px rgba(0,0,0,0.25));
     touch-action:manipulation;
   }
@@ -150,6 +151,24 @@
     box-sizing:border-box;
   }
 
+  #musicToggleBtn{
+    background:var(--cream);
+    border:3px solid var(--lemon-dark);
+    border-radius:14px;
+    width:42px;
+    height:42px;
+    font-size:18px;
+    line-height:1;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,0.12);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.05s ease;
+  }
+  #musicToggleBtn:active{ transform:translateY(3px); }
+  #musicToggleBtn.muted{ opacity:0.55; }
+
   /* ---------- Name overlay ---------- */
   .screenOverlay{
     position:absolute;
@@ -215,6 +234,41 @@
   }
   #startBtn:active, #collectOfflineBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #c8483b; }
 
+  #doubleOfflineBtn{
+    width:100%;
+    padding:12px;
+    font-family:'Baloo 2', sans-serif;
+    font-size:16px;
+    font-weight:700;
+    color:#fff;
+    background:#7c4dff;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #5e35b1;
+    transition:transform 0.05s ease;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+  }
+  #doubleOfflineBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #5e35b1; }
+  #doubleOfflineBtn:disabled{
+    opacity:0.5;
+    cursor:default;
+    box-shadow:0 4px 0 #5e35b1;
+  }
+  #doubleOfflineBtn:disabled:active{ transform:none; }
+  #doubleOfflineBtn .gem{
+    display:inline-block;
+    width:14px;
+    height:14px;
+    background:linear-gradient(135deg, #c39bff, #fff);
+    clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    border:1px solid #5e35b1;
+  }
+
   .hidden{ display:none !important; }
 
   #footNote{
@@ -250,6 +304,8 @@
     text-align:center;
     width:300px;
     max-width:82vw;
+    max-height:92%;
+    overflow-y:auto;
     box-shadow:0 10px 0 rgba(0,0,0,0.18);
     font-family:'Baloo 2', sans-serif;
   }
@@ -805,6 +861,7 @@
     #moneyDisplay, #gemDisplay{ font-size:17px; padding:6px 12px; }
     #moneyDisplay .coin{ width:19px; height:19px; }
     #gemDisplay .gem{ width:16px; height:16px; }
+    #musicToggleBtn{ width:36px; height:36px; font-size:15px; border-width:2px; }
     #footNote{ font-size:11.5px; padding:0 8px; }
 
     #renovateToggleBtn, #upgradesToggleBtn, #savesToggleBtn{
@@ -820,6 +877,7 @@
     #moneyDisplay, #gemDisplay{ font-size:14px; padding:5px 9px; border-width:2px; gap:5px; }
     #moneyDisplay .coin{ width:15px; height:15px; }
     #gemDisplay .gem{ width:13px; height:13px; }
+    #musicToggleBtn{ width:30px; height:30px; font-size:13px; border-width:2px; }
     #topRight{ gap:5px; }
     #footNote{ font-size:10.5px; bottom:6px; }
 
@@ -847,18 +905,31 @@
     #upgradesToggleBtn{ right:8px; bottom:8px; }
     #savesToggleBtn{ left:8px; bottom:8px; }
   }
+
+  /* Narrow portrait phones: the canvas itself ends up quite short here
+     (fixed 3:2 game area), so squeeze the floating chrome further to
+     leave more room for the actual stall. */
+  @media (max-width: 480px) and (orientation: portrait){
+    #footNote{ display:none; }
+    #renovateToggleBtn, #upgradesToggleBtn, #savesToggleBtn{
+      font-size:10.5px;
+      padding:7px 9px;
+    }
+    #renovateToggleBtn{ bottom:44px; }
+  }
 </style>
 </head>
 <body>
 
 <div id="gameWrap">
-  <canvas id="gameCanvas" width="900" height="600"></canvas>
+  <canvas id="gameCanvas" width="900" height="780"></canvas>
 
   <div id="gameUI">
     <div id="titleBadge">🍋 Lemonade Venture</div>
     <div id="topRight">
       <div id="moneyDisplay"><span class="coin"></span><span id="moneyCount">0</span></div>
       <div id="gemDisplay"><span class="gem"></span><span id="gemCount">0</span></div>
+      <button id="musicToggleBtn" title="Toggle music">🔊</button>
     </div>
   </div>
 
@@ -877,6 +948,7 @@
     <div class="nameBox">
       <h1>🍋 Welcome back!</h1>
       <p id="welcomeBackText">While you were away your stall kept running.</p>
+      <button id="doubleOfflineBtn"><span class="gem"></span><span id="doubleOfflineBtnText">Double it for 10 💎</span></button>
       <button id="collectOfflineBtn">Collect</button>
     </div>
   </div>
@@ -896,11 +968,7 @@
 
       <div class="reqList" id="reqListEl">
         <div class="reqRow" id="reqMoneyRow"><span class="reqCheck">✓</span><span class="reqText">Save $25,000</span></div>
-        <div class="reqRow" id="reqAdvertisingRow"><span class="reqCheck">✓</span><span class="reqText">Advertising upgrade</span></div>
-        <div class="reqRow" id="reqManagementRow"><span class="reqCheck">✓</span><span class="reqText">Management upgrade</span></div>
-        <div class="reqRow" id="reqHasteRow"><span class="reqCheck">✓</span><span class="reqText">Haste upgrade</span></div>
-        <div class="reqRow" id="reqReviewsRow"><span class="reqCheck">✓</span><span class="reqText">Reviews upgrade</span></div>
-        <div class="reqRow" id="reqProfitsRow"><span class="reqCheck">✓</span><span class="reqText">Profits upgrade</span></div>
+        <div class="reqRow" id="reqUpgradesRow"><span class="reqCheck">✓</span><span class="reqText">Purchase all upgrades</span></div>
         <div class="reqRow" id="reqLevelRow"><span class="reqCheck">✓</span><span class="reqText">Lemonade Maker at Lvl 25</span></div>
       </div>
 
@@ -1137,7 +1205,7 @@
   // device pixel ratio so it renders crisply on retina phones/tablets
   // instead of looking blurry, while every draw() call still just uses
   // plain 900x600 coordinates.
-  const LOGICAL_W = 900, LOGICAL_H = 600;
+  const LOGICAL_W = 900, LOGICAL_H = 780;
   function setupCanvasResolution(){
     const dpr = Math.min(window.devicePixelRatio || 1, 3);
     canvas.width = LOGICAL_W * dpr;
@@ -1151,12 +1219,15 @@
   const moneyDisplayEl = document.getElementById('moneyDisplay');
   const gemDisplayEl = document.getElementById('gemDisplay');
   const gemCountEl = document.getElementById('gemCount');
+  const musicToggleBtn = document.getElementById('musicToggleBtn');
   const nameOverlay = document.getElementById('nameOverlay');
   const nameInput = document.getElementById('nameInput');
   const startBtn = document.getElementById('startBtn');
   const welcomeBackOverlay = document.getElementById('welcomeBackOverlay');
   const welcomeBackText = document.getElementById('welcomeBackText');
   const collectOfflineBtn = document.getElementById('collectOfflineBtn');
+  const doubleOfflineBtn = document.getElementById('doubleOfflineBtn');
+  const doubleOfflineBtnText = document.getElementById('doubleOfflineBtnText');
 
   const stationBuyOverlay = document.getElementById('stationBuyOverlay');
   const stationBuyClose = document.getElementById('stationBuyClose');
@@ -1214,24 +1285,20 @@
   const renovateBarFill = document.getElementById('renovateBarFill');
   const reqListEl = document.getElementById('reqListEl');
   const reqMoneyRow = document.getElementById('reqMoneyRow');
-  const reqAdvertisingRow = document.getElementById('reqAdvertisingRow');
-  const reqManagementRow = document.getElementById('reqManagementRow');
-  const reqHasteRow = document.getElementById('reqHasteRow');
-  const reqReviewsRow = document.getElementById('reqReviewsRow');
-  const reqProfitsRow = document.getElementById('reqProfitsRow');
+  const reqUpgradesRow = document.getElementById('reqUpgradesRow');
   const reqLevelRow = document.getElementById('reqLevelRow');
 
   // ---------------------------------------------------------------
   // Layout constants (top-down plot, inspired by Eatventure)
   // ---------------------------------------------------------------
-  const PLOT   = { x: 130, y: 90,  w: 640, h: 430, r: 22 };
+  const PLOT   = { x: 130, y: 90,  w: 640, h: 570, r: 22 };
   const BENCH  = { x: 250, y: 150, w: 400, h: 46,  r: 10 };
 
-  const IDLE_SPOT  = { x: 470, y: 480 };
+  const IDLE_SPOT  = { x: 470, y: 560 };
   // Second worker's idle spot (used once the Management upgrade is bought)
-  const IDLE_SPOT2 = { x: 400, y: 480 };
+  const IDLE_SPOT2 = { x: 400, y: 560 };
   // Third worker's idle spot (used once the Hard Work upgrade is bought)
-  const IDLE_SPOT3 = { x: 330, y: 480 };
+  const IDLE_SPOT3 = { x: 330, y: 560 };
 
   // Offset from a machine's top-left corner (given its own w/h) to the
   // spot a worker stands at to operate it. Same offset used for every
@@ -1632,6 +1699,131 @@
   }
 
   // ---------------------------------------------------------------
+  // Background music: a tiny synthesized loop (no external files),
+  // scheduled ahead of time so it stays gapless. Kept quiet and mellow
+  // to sit under the sound effects rather than compete with them.
+  // ---------------------------------------------------------------
+  const MUSIC_VOLUME = 0.045;
+  const MUSIC_PREF_KEY = 'lemonadeVentureMusicEnabled';
+  let musicEnabled = true;
+  let musicStarted = false;
+  let musicGainNode = null;
+  let musicSchedulerId = null;
+  let musicNextNoteTime = 0;
+  let musicChordIndex = 0;
+  let musicBeatIndex = 0;
+
+  // Breezy I - V - vi - IV progression (C, G, Am, F) with a light,
+  // ukulele-ish arpeggio on top -- easygoing summer-stand vibe.
+  const MUSIC_TEMPO = 104; // BPM, one chord per bar (4 beats)
+  const MUSIC_CHORDS = [
+    { bass: 130.81, arp: [261.63, 329.63, 392.00, 329.63] }, // C
+    { bass: 196.00, arp: [392.00, 493.88, 587.33, 493.88] }, // G
+    { bass: 220.00, arp: [220.00, 261.63, 329.63, 261.63] }, // Am
+    { bass: 174.61, arp: [349.23, 440.00, 523.25, 440.00] }  // F
+  ];
+
+  function getMusicGain(){
+    const ac = getAudio();
+    if (!ac) return null;
+    if (!musicGainNode){
+      musicGainNode = ac.createGain();
+      musicGainNode.gain.value = musicEnabled ? MUSIC_VOLUME : 0;
+      musicGainNode.connect(ac.destination);
+    }
+    return musicGainNode;
+  }
+
+  function playMusicTone(freq, time, duration, type, peak){
+    const ac = getAudio();
+    const gain = getMusicGain();
+    if (!ac || !gain) return;
+    const osc = ac.createOscillator();
+    const noteGain = ac.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, time);
+    noteGain.gain.setValueAtTime(0, time);
+    noteGain.gain.linearRampToValueAtTime(peak, time + 0.04);
+    noteGain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    osc.connect(noteGain);
+    noteGain.connect(gain);
+    osc.start(time);
+    osc.stop(time + duration + 0.05);
+  }
+
+  function scheduleMusicBeat(){
+    const chord = MUSIC_CHORDS[musicChordIndex];
+    const beatDur = 60 / MUSIC_TEMPO;
+    if (musicBeatIndex === 0){
+      // Soft held bass note under each bar.
+      playMusicTone(chord.bass, musicNextNoteTime, beatDur * 3.7, 'triangle', 0.4);
+    }
+    // Gentle arpeggio note every beat.
+    playMusicTone(chord.arp[musicBeatIndex], musicNextNoteTime, beatDur * 0.85, 'sine', 0.3);
+
+    musicNextNoteTime += beatDur;
+    musicBeatIndex++;
+    if (musicBeatIndex >= 4){
+      musicBeatIndex = 0;
+      musicChordIndex = (musicChordIndex + 1) % MUSIC_CHORDS.length;
+    }
+  }
+
+  function musicScheduler(){
+    const ac = getAudio();
+    if (!ac) return;
+    while (musicNextNoteTime < ac.currentTime + 0.15){
+      scheduleMusicBeat();
+    }
+  }
+
+  function startMusic(){
+    const ac = getAudio();
+    if (!ac || musicStarted) return;
+    musicStarted = true;
+    getMusicGain();
+    musicNextNoteTime = ac.currentTime + 0.1;
+    musicScheduler();
+    musicSchedulerId = setInterval(musicScheduler, 25);
+  }
+
+  function refreshMusicToggleUI(){
+    if (!musicToggleBtn) return;
+    musicToggleBtn.textContent = musicEnabled ? '\uD83D\uDD0A' : '\uD83D\uDD07';
+    musicToggleBtn.classList.toggle('muted', !musicEnabled);
+    musicToggleBtn.title = musicEnabled ? 'Mute music' : 'Unmute music';
+  }
+
+  function setMusicEnabled(enabled){
+    musicEnabled = enabled;
+    const ac = getAudio();
+    const gain = getMusicGain();
+    if (ac && gain){
+      gain.gain.cancelScheduledValues(ac.currentTime);
+      gain.gain.linearRampToValueAtTime(enabled ? MUSIC_VOLUME : 0, ac.currentTime + 0.2);
+    }
+    refreshMusicToggleUI();
+    storageSetRaw(MUSIC_PREF_KEY, enabled ? '1' : '0');
+  }
+
+  if (musicToggleBtn){
+    musicToggleBtn.addEventListener('click', () => setMusicEnabled(!musicEnabled));
+  }
+  refreshMusicToggleUI();
+
+  // Browsers require a user gesture before audio can play; catch the very
+  // first click/keypress/touch anywhere and use it to wake the audio
+  // context and kick off the music loop (in case the player auto-loads
+  // straight into the game rather than clicking "Open the stall!").
+  function ensureAudioRunning(){
+    const ac = getAudio();
+    if (ac && ac.state === 'suspended') ac.resume().catch(() => {});
+    startMusic();
+  }
+  window.addEventListener('pointerdown', ensureAudioRunning, { passive: true });
+  window.addEventListener('keydown', ensureAudioRunning);
+
+  // ---------------------------------------------------------------
   // Name entry
   // ---------------------------------------------------------------
   function beginGame(){
@@ -1641,6 +1833,7 @@
     started = true;
     lastTime = performance.now();
     getAudio();
+    startMusic();
     scheduleNextSpawn(500);
     requestAnimationFrame(loop);
   }
@@ -1911,11 +2104,7 @@
   function renovationRequirements(){
     return [
       { row: reqMoneyRow, met: money >= RENOVATE_COST },
-      { row: reqAdvertisingRow, met: advertisingBought },
-      { row: reqManagementRow, met: managementBought },
-      { row: reqHasteRow, met: hasteBought },
-      { row: reqReviewsRow, met: reviewsBought },
-      { row: reqProfitsRow, met: profitsBought },
+      { row: reqUpgradesRow, met: advertisingBought && managementBought && hasteBought && reviewsBought && profitsBought },
       { row: reqLevelRow, met: stations.lemonade.level >= 25 }
     ];
   }
@@ -2078,6 +2267,15 @@
     try { window.localStorage.removeItem(key); return true; } catch (e) { return false; }
   }
 
+  // Load any saved music-mute preference now that storage helpers exist.
+  (async function initMusicPreference(){
+    const raw = await storageGetRaw(MUSIC_PREF_KEY);
+    if (raw === '0'){
+      musicEnabled = false;
+      refreshMusicToggleUI();
+    }
+  })();
+
   async function readSlot(n){
     const raw = await storageGetRaw(slotKey(n));
     if (!raw) return null;
@@ -2239,13 +2437,34 @@
     return 'a moment';
   }
 
+  const OFFLINE_DOUBLE_GEM_COST = 10;
+  let pendingOfflineEarnings = 0;
+
   function showWelcomeBackOverlay(earnings, elapsedSeconds){
+    pendingOfflineEarnings = earnings;
     welcomeBackText.textContent = 'You were away for ' + formatDuration(elapsedSeconds) +
       ' and your stall earned $' + earnings.toLocaleString() + ' while you were gone!';
+    doubleOfflineBtn.classList.remove('hidden');
+    doubleOfflineBtn.disabled = gems < OFFLINE_DOUBLE_GEM_COST;
+    doubleOfflineBtnText.textContent = 'Double it for ' + OFFLINE_DOUBLE_GEM_COST + ' \uD83D\uDC8E';
     welcomeBackOverlay.classList.remove('hidden');
   }
   collectOfflineBtn.addEventListener('click', () => {
     welcomeBackOverlay.classList.add('hidden');
+    pendingOfflineEarnings = 0;
+  });
+  doubleOfflineBtn.addEventListener('click', () => {
+    if (doubleOfflineBtn.disabled || pendingOfflineEarnings <= 0) return;
+    if (gems < OFFLINE_DOUBLE_GEM_COST) return;
+    gems -= OFFLINE_DOUBLE_GEM_COST;
+    gemCountEl.textContent = gems;
+    money += pendingOfflineEarnings;
+    displayedMoney = money;
+    moneyCountEl.textContent = Math.round(money);
+    welcomeBackText.textContent = 'Doubled! Your stall earned $' + (pendingOfflineEarnings * 2).toLocaleString() +
+      ' while you were gone!';
+    pendingOfflineEarnings = 0;
+    doubleOfflineBtn.classList.add('hidden');
   });
 
   // ---------------------------------------------------------------
@@ -2264,6 +2483,7 @@
     started = true;
     lastTime = performance.now();
     getAudio();
+    startMusic();
     requestAnimationFrame(loop);
 
     const offline = computeOfflineEarnings(state);
@@ -3392,8 +3612,8 @@
   function draw(now){
     const t = currentTheme();
     drawBackground();
-    drawUmbrella(70, 470, 78, t.umbrellaA, t.umbrellaB);
-    drawUmbrella(830, 470, 78, t.umbrellaA, t.umbrellaB);
+    drawUmbrella(70, 550, 78, t.umbrellaA, t.umbrellaB);
+    drawUmbrella(830, 550, 78, t.umbrellaA, t.umbrellaB);
 
     drawPlot();
     drawBench();
