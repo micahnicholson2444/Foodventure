@@ -93,6 +93,12 @@
 
   #moneyDisplay.bump{ transform:scale(1.18); }
 
+  #topRight{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+  }
+
   #moneyDisplay .coin{
     display:inline-block;
     width:24px;
@@ -100,6 +106,33 @@
     border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #fff3b0, var(--lemon-dark));
     border:2px solid #b97a00;
+  }
+
+  #gemDisplay{
+    background:var(--cream);
+    border:3px solid #7c4dff;
+    border-radius:14px;
+    padding:8px 16px;
+    font-weight:800;
+    font-size:22px;
+    color:var(--ink);
+    box-shadow:0 4px 0 rgba(0,0,0,0.12);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transform-origin:center;
+    transition:transform 0.12s cubic-bezier(.34,1.56,.64,1);
+  }
+  #gemDisplay.bump{ transform:scale(1.18); }
+
+  #gemDisplay .gem{
+    display:inline-block;
+    width:20px;
+    height:20px;
+    background:linear-gradient(135deg, #c39bff, #7c4dff);
+    clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    border:2px solid #5e35b1;
+    box-sizing:border-box;
   }
 
   /* ---------- Name overlay ---------- */
@@ -182,7 +215,7 @@
   }
 
   /* ---------- Maker upgrade panel ---------- */
-  #makerOverlay{
+  #makerOverlay, #stationBuyOverlay{
     position:absolute;
     inset:0;
     background:rgba(58,43,26,0.5);
@@ -254,6 +287,45 @@
   .statRow span:first-child{ opacity:0.75; }
   .statRow span:last-child{ font-weight:800; font-family:'Baloo 2', sans-serif; }
 
+  #milestoneSection{
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px dashed #e0c88f;
+    text-align:left;
+  }
+
+  #milestoneLabel{
+    font-family:'Nunito', sans-serif;
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink);
+    opacity:0.85;
+    margin-bottom:6px;
+    line-height:1.4;
+  }
+  #milestoneLabel strong{ color:#7c4dff; }
+
+  .milestoneBarTrack{
+    width:100%;
+    height:12px;
+    background:#efe3c4;
+    border:2px solid #d8c690;
+    border-radius:999px;
+    overflow:hidden;
+  }
+
+  #milestoneBarFill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, #c39bff, #7c4dff);
+    border-radius:999px;
+    transition:width 0.25s ease;
+  }
+
+  #milestoneBarFill.complete{
+    background:linear-gradient(90deg, #ffd23f, #f2a900);
+  }
+
   #upgradeBtn{
     margin-top:18px;
     width:100%;
@@ -279,6 +351,303 @@
     cursor:not-allowed;
     filter:grayscale(0.25);
   }
+
+  #renovateToggleBtn{
+    position:absolute;
+    right:14px;
+    bottom:66px;
+    z-index:15;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:15px;
+    color:#ffffff;
+    background:#a5673c;
+    border:none;
+    border-radius:12px;
+    padding:12px 20px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #7c4d24;
+    transition:transform 0.05s ease;
+  }
+  #renovateToggleBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #7c4d24; }
+
+  #renovateBadge{
+    position:absolute;
+    top:-8px;
+    right:-8px;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:#ff3b3b;
+    border:2px solid #ffffff;
+    color:#ffffff;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 2px 4px rgba(0,0,0,0.25);
+    animation:upgradesBadgePulse 1.1s ease-in-out infinite;
+  }
+
+  #renovateOverlay{
+    position:absolute;
+    inset:0;
+    background:rgba(58,43,26,0.5);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:18px;
+    z-index:26;
+  }
+
+  .buildingFlow{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .buildingChip{
+    background:#ffffff;
+    border:2px solid #e0c88f;
+    border-radius:12px;
+    padding:8px 10px;
+    font-size:12px;
+    font-weight:800;
+    color:var(--ink);
+    min-width:84px;
+    text-align:center;
+  }
+  .buildingChip.next{ border-color:#a5673c; color:#a5673c; }
+  .buildingArrow{ font-size:16px; color:#c99a55; }
+
+  #renovateBarFill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, #d59a5c, #a5673c);
+    border-radius:999px;
+    transition:width 0.25s ease;
+  }
+
+  .reqList{ text-align:left; margin:14px 0 6px; }
+  .reqRow{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Nunito', sans-serif;
+    font-size:13px;
+    color:var(--ink);
+    padding:6px 2px;
+    border-bottom:1px dashed #e0c88f;
+  }
+  .reqRow:last-of-type{ border-bottom:none; }
+  .reqCheck{
+    width:18px;
+    height:18px;
+    min-width:18px;
+    border-radius:50%;
+    border:2px solid #c9ccce;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:10px;
+    font-weight:800;
+    color:transparent;
+    background:#ffffff;
+    transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .reqRow.met .reqCheck{ background:#57c48a; border-color:#3e9868; color:#ffffff; }
+  .reqRow.met .reqText{ opacity:0.55; text-decoration:line-through; }
+
+  #renovateBtn{
+    margin-top:8px;
+    width:100%;
+    padding:12px 10px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:#fff;
+    background:#a5673c;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #7c4d24;
+    transition:transform 0.05s ease, filter 0.15s ease;
+    line-height:1.5;
+  }
+  #renovateBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #7c4d24; }
+  #renovateBtn small{ display:block; font-family:'Nunito', sans-serif; font-weight:700; font-size:12px; opacity:0.9; }
+  #renovateBtn.cantAfford{
+    background:#b9bcbf;
+    box-shadow:0 4px 0 #8d9093;
+    cursor:not-allowed;
+    filter:grayscale(0.25);
+  }
+
+  /* ---------- Upgrades button + sidebar ---------- */
+  #upgradesToggleBtn{
+    position:absolute;
+    right:14px;
+    bottom:14px;
+    z-index:15;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:15px;
+    color:#ffffff;
+    background:#3d8bf0;
+    border:none;
+    border-radius:12px;
+    padding:12px 20px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #2a63b0;
+    transition:transform 0.05s ease;
+  }
+  #upgradesToggleBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #2a63b0; }
+
+  #upgradesBadge{
+    position:absolute;
+    top:-8px;
+    right:-8px;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:#ff3b3b;
+    border:2px solid #ffffff;
+    color:#ffffff;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 2px 4px rgba(0,0,0,0.25);
+    animation:upgradesBadgePulse 1.1s ease-in-out infinite;
+  }
+
+  @keyframes upgradesBadgePulse{
+    0%, 100%{ transform:scale(1); }
+    50%{ transform:scale(1.15); }
+  }
+
+  #upgradesBackdrop{
+    position:absolute;
+    inset:0;
+    background:rgba(58,43,26,0.4);
+    z-index:29;
+    border-radius:18px;
+  }
+
+  #upgradesSidebar{
+    position:absolute;
+    top:0;
+    right:0;
+    bottom:0;
+    width:280px;
+    max-width:82vw;
+    background:var(--cream);
+    border-left:4px solid var(--lemon-dark);
+    box-shadow:-8px 0 20px rgba(0,0,0,0.25);
+    z-index:30;
+    transform:translateX(100%);
+    transition:transform 0.28s cubic-bezier(.34,1.12,.64,1);
+    display:flex;
+    flex-direction:column;
+    padding:18px 16px;
+    overflow-y:auto;
+    font-family:'Baloo 2', sans-serif;
+    border-radius:0 18px 18px 0;
+  }
+  #upgradesSidebar.open{ transform:translateX(0); }
+
+  .upgradesHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .upgradesHeader h2{ margin:0; font-size:20px; color:var(--coral); }
+
+  .upgradeCard{
+    background:#ffffff;
+    border:2px solid #e0c88f;
+    border-radius:14px;
+    padding:12px;
+    margin-bottom:12px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .upgradeCardTop{ display:flex; align-items:flex-start; gap:10px; }
+  .upgradeIcon{ font-size:22px; line-height:1; }
+  .upgradeInfo h3{ margin:0 0 2px; font-size:15px; color:var(--ink); }
+  .upgradeInfo p{ margin:0; font-size:12px; color:var(--ink); opacity:0.75; font-family:'Nunito', sans-serif; line-height:1.35; }
+
+  .buyUpgradeBtn{
+    margin-top:2px;
+    padding:9px 10px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:#ffffff;
+    background:#57c48a;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    box-shadow:0 3px 0 #3e9868;
+    transition:transform 0.05s ease, filter 0.15s ease;
+    line-height:1.4;
+  }
+  .buyUpgradeBtn:active{ transform:translateY(2px); box-shadow:0 1px 0 #3e9868; }
+  .buyUpgradeBtn small{ display:block; font-family:'Nunito', sans-serif; font-weight:700; font-size:11px; opacity:0.9; }
+
+  .buyUpgradeBtn.cantAfford{
+    background:#b9bcbf;
+    box-shadow:0 3px 0 #8d9093;
+    cursor:not-allowed;
+    filter:grayscale(0.25);
+  }
+  .buyUpgradeBtn.owned{
+    background:#e0c88f;
+    box-shadow:0 3px 0 #b3985e;
+    cursor:default;
+    color:var(--ink);
+  }
+
+  /* ---------- Station unlock (buy) panel ---------- */
+  #stationBuyDescEl{
+    font-family:'Nunito', sans-serif;
+    font-size:13px;
+    color:var(--ink);
+    opacity:0.8;
+    margin:0 0 16px;
+    line-height:1.4;
+  }
+
+  #stationBuyBtn{
+    width:100%;
+    padding:12px 10px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:#fff;
+    background:#3d8bf0;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #2a63b0;
+    transition:transform 0.05s ease, filter 0.15s ease;
+    line-height:1.5;
+  }
+  #stationBuyBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #2a63b0; }
+  #stationBuyBtn small{ display:block; font-family:'Nunito', sans-serif; font-weight:700; font-size:12px; opacity:0.9; }
+  #stationBuyBtn.cantAfford{
+    background:#b9bcbf;
+    box-shadow:0 4px 0 #8d9093;
+    cursor:not-allowed;
+    filter:grayscale(0.25);
+  }
 </style>
 </head>
 <body>
@@ -288,7 +657,10 @@
 
   <div id="gameUI">
     <div id="titleBadge">🍋 Lemonade Venture</div>
-    <div id="moneyDisplay"><span class="coin"></span><span id="moneyCount">0</span></div>
+    <div id="topRight">
+      <div id="moneyDisplay"><span class="coin"></span><span id="moneyCount">0</span></div>
+      <div id="gemDisplay"><span class="gem"></span><span id="gemCount">0</span></div>
+    </div>
   </div>
 
   <div id="footNote">Click the lemonade maker to view stats and upgrade your price!</div>
@@ -302,19 +674,122 @@
     </div>
   </div>
 
+  <div id="renovateOverlay" class="hidden">
+    <div class="makerBox">
+      <button id="renovateClose" class="makerClose">✕</button>
+      <h2>🔨 Renovate</h2>
+
+      <div class="buildingFlow">
+        <div class="buildingChip" id="buildingCurrentEl">Lemonade Stand</div>
+        <div class="buildingArrow">➜</div>
+        <div class="buildingChip next" id="buildingNextEl">Classic Stand</div>
+      </div>
+
+      <div class="milestoneBarTrack"><div id="renovateBarFill"></div></div>
+
+      <div class="reqList" id="reqListEl">
+        <div class="reqRow" id="reqMoneyRow"><span class="reqCheck">✓</span><span class="reqText">Save $7,500</span></div>
+        <div class="reqRow" id="reqAdvertisingRow"><span class="reqCheck">✓</span><span class="reqText">Advertising upgrade</span></div>
+        <div class="reqRow" id="reqManagementRow"><span class="reqCheck">✓</span><span class="reqText">Management upgrade</span></div>
+        <div class="reqRow" id="reqHasteRow"><span class="reqCheck">✓</span><span class="reqText">Haste upgrade</span></div>
+        <div class="reqRow" id="reqReviewsRow"><span class="reqCheck">✓</span><span class="reqText">Reviews upgrade</span></div>
+        <div class="reqRow" id="reqLevelRow"><span class="reqCheck">✓</span><span class="reqText">Lemonade Maker at Lvl 25</span></div>
+      </div>
+
+      <button id="renovateBtn">
+        Renovate!
+        <small>Resets progress &middot; awards +3 💎</small>
+      </button>
+    </div>
+  </div>
+
+  <div id="stationBuyOverlay" class="hidden">
+    <div class="makerBox">
+      <button id="stationBuyClose" class="makerClose">✕</button>
+      <h2 id="stationBuyTitleEl">🌭 Hotdog Maker</h2>
+      <p id="stationBuyDescEl">Unlock a brand new machine so customers can order this too!</p>
+      <button id="stationBuyBtn">
+        Buy Machine
+        <small>Cost: $<span id="stationBuyCostEl">5000</span></small>
+      </button>
+    </div>
+  </div>
+
   <div id="makerOverlay" class="hidden">
     <div class="makerBox">
       <button id="makerClose" class="makerClose">✕</button>
-      <h2>🍋 Lemonade Maker</h2>
+      <h2 id="makerTitleEl">🍋 Lemonade Maker</h2>
       <div class="levelBadge">Level <span id="makerLevelEl">1</span></div>
 
       <div class="statRow"><span>Price per cup</span><span id="makerPriceEl">$3</span></div>
       <div class="statRow"><span>Time to make</span><span id="makerTimeEl">5.0s</span></div>
+      <div class="statRow"><span>Sell multiplier</span><span id="makerMultiplierEl">x1</span></div>
+      <div class="statRow"><span>Machines</span><span id="makerMachinesEl">1</span></div>
 
       <button id="upgradeBtn">
         Upgrade Price +$<span id="upgradeDeltaEl">2</span>
         <small>Cost: $<span id="upgradeCostEl">10</span></small>
       </button>
+
+      <div id="milestoneSection">
+        <div id="milestoneLabel">Milestone at Lvl <span id="milestoneLevelEl">10</span>: <strong>+1 💎 &amp; x2 sell value</strong></div>
+        <div class="milestoneBarTrack"><div id="milestoneBarFill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <button id="renovateToggleBtn">🔨 Renovate<span id="renovateBadge" class="hidden">!</span></button>
+  <button id="upgradesToggleBtn">Upgrades<span id="upgradesBadge" class="hidden">!</span></button>
+
+  <div id="upgradesBackdrop" class="hidden"></div>
+  <div id="upgradesSidebar">
+    <div class="upgradesHeader">
+      <h2>Upgrades</h2>
+      <button id="upgradesClose" class="makerClose">✕</button>
+    </div>
+
+    <div class="upgradeCard">
+      <div class="upgradeCardTop">
+        <div class="upgradeIcon">📣</div>
+        <div class="upgradeInfo">
+          <h3>Advertising</h3>
+          <p>Attracts an extra customer to your stall at the same time.</p>
+        </div>
+      </div>
+      <button class="buyUpgradeBtn" id="advertisingBuyBtn">Buy<small>$150</small></button>
+    </div>
+
+    <div class="upgradeCard">
+      <div class="upgradeCardTop">
+        <div class="upgradeIcon">🧑‍🍳</div>
+        <div class="upgradeInfo">
+          <h3>Management</h3>
+          <p>Hires a Worker who helps serve customers alongside you.</p>
+        </div>
+      </div>
+      <button class="buyUpgradeBtn" id="managementBuyBtn">Buy<small>$500</small></button>
+    </div>
+
+    <div class="upgradeCard">
+      <div class="upgradeCardTop">
+        <div class="upgradeIcon">⚡</div>
+        <div class="upgradeInfo">
+          <h3>Haste</h3>
+          <p>Halves the time it takes to make a cup of lemonade.</p>
+        </div>
+      </div>
+      <button class="buyUpgradeBtn" id="hasteBuyBtn">Buy<small>$1500</small></button>
+    </div>
+
+    <div class="upgradeCard">
+      <div class="upgradeCardTop">
+        <div class="upgradeIcon">⭐</div>
+        <div class="upgradeInfo">
+          <h3>Reviews</h3>
+          <p>Great reviews bring customers in twice as fast.</p>
+        </div>
+      </div>
+      <button class="buyUpgradeBtn" id="reviewsBuyBtn">Buy<small>$5000</small></button>
     </div>
   </div>
 </div>
@@ -327,32 +802,83 @@
   const ctx = canvas.getContext('2d');
   const moneyCountEl = document.getElementById('moneyCount');
   const moneyDisplayEl = document.getElementById('moneyDisplay');
+  const gemDisplayEl = document.getElementById('gemDisplay');
+  const gemCountEl = document.getElementById('gemCount');
   const nameOverlay = document.getElementById('nameOverlay');
   const nameInput = document.getElementById('nameInput');
   const startBtn = document.getElementById('startBtn');
 
+  const stationBuyOverlay = document.getElementById('stationBuyOverlay');
+  const stationBuyClose = document.getElementById('stationBuyClose');
+  const stationBuyTitleEl = document.getElementById('stationBuyTitleEl');
+  const stationBuyDescEl = document.getElementById('stationBuyDescEl');
+  const stationBuyBtn = document.getElementById('stationBuyBtn');
+  const stationBuyCostEl = document.getElementById('stationBuyCostEl');
+
   const makerOverlay = document.getElementById('makerOverlay');
   const makerClose = document.getElementById('makerClose');
+  const makerTitleEl = document.getElementById('makerTitleEl');
   const makerLevelEl = document.getElementById('makerLevelEl');
   const makerPriceEl = document.getElementById('makerPriceEl');
   const makerTimeEl = document.getElementById('makerTimeEl');
+  const makerMultiplierEl = document.getElementById('makerMultiplierEl');
+  const makerMachinesEl = document.getElementById('makerMachinesEl');
+  const milestoneLabelEl = document.getElementById('milestoneLabel');
+  const milestoneLevelEl = document.getElementById('milestoneLevelEl');
+  const milestoneBarFill = document.getElementById('milestoneBarFill');
   const upgradeBtn = document.getElementById('upgradeBtn');
   const upgradeDeltaEl = document.getElementById('upgradeDeltaEl');
   const upgradeCostEl = document.getElementById('upgradeCostEl');
+
+  const upgradesToggleBtn = document.getElementById('upgradesToggleBtn');
+  const upgradesBadge = document.getElementById('upgradesBadge');
+  const upgradesSidebar = document.getElementById('upgradesSidebar');
+  const upgradesBackdrop = document.getElementById('upgradesBackdrop');
+  const upgradesClose = document.getElementById('upgradesClose');
+  const advertisingBuyBtn = document.getElementById('advertisingBuyBtn');
+  const managementBuyBtn = document.getElementById('managementBuyBtn');
+  const hasteBuyBtn = document.getElementById('hasteBuyBtn');
+  const reviewsBuyBtn = document.getElementById('reviewsBuyBtn');
+
+  const renovateToggleBtn = document.getElementById('renovateToggleBtn');
+  const renovateBadge = document.getElementById('renovateBadge');
+  const renovateOverlay = document.getElementById('renovateOverlay');
+  const renovateClose = document.getElementById('renovateClose');
+  const renovateBtn = document.getElementById('renovateBtn');
+  const buildingCurrentEl = document.getElementById('buildingCurrentEl');
+  const buildingNextEl = document.getElementById('buildingNextEl');
+  const renovateBarFill = document.getElementById('renovateBarFill');
+  const reqListEl = document.getElementById('reqListEl');
+  const reqMoneyRow = document.getElementById('reqMoneyRow');
+  const reqAdvertisingRow = document.getElementById('reqAdvertisingRow');
+  const reqManagementRow = document.getElementById('reqManagementRow');
+  const reqHasteRow = document.getElementById('reqHasteRow');
+  const reqReviewsRow = document.getElementById('reqReviewsRow');
+  const reqLevelRow = document.getElementById('reqLevelRow');
 
   // ---------------------------------------------------------------
   // Layout constants (top-down plot, inspired by Eatventure)
   // ---------------------------------------------------------------
   const PLOT   = { x: 130, y: 90,  w: 640, h: 430, r: 22 };
   const BENCH  = { x: 250, y: 150, w: 400, h: 46,  r: 10 };
-  const MAKER  = { x: 210, y: 380, w: 62, h: 82 }; // small countertop juice machine
 
-  const CUSTOMER_SPOT = { x: 450, y: 118 };
-  const SERVE_SPOT    = { x: 450, y: 232 };
-  const MAKER_SPOT    = { x: 248, y: 372 };
-  const IDLE_SPOT      = { x: 470, y: 480 };
+  const IDLE_SPOT  = { x: 470, y: 480 };
+  // Second worker's idle spot (used once the Management upgrade is bought)
+  const IDLE_SPOT2 = { x: 400, y: 480 };
 
-  const BASE_MAKING_MS   = 5000;
+  // Offset from a machine's top-left corner (given its own w/h) to the
+  // spot a worker stands at to operate it. Same offset used for every
+  // machine footprint since they all share the same size.
+  const SLOT_OFFSET = { dx: 38, dy: -8 };
+  const MAKER_GAP    = 30; // gap between a machine and its "extension" twin
+
+  // One slot per customer that can be waiting at once. A second slot only
+  // becomes usable once the Advertising upgrade is purchased.
+  const CUSTOMER_SPOTS = [
+    { spot: { x: 450, y: 118 }, serve: { x: 450, y: 232 } },
+    { spot: { x: 560, y: 118 }, serve: { x: 560, y: 232 } }
+  ];
+
   const SPAWN_MIN_MS     = 1200;
   const SPAWN_MAX_MS     = 2000;
   const WALK_SPEED        = 210; // px / sec
@@ -361,48 +887,253 @@
   const SHIRT_COLORS = ['#e05a72', '#7a63e0', '#4fb0e0', '#e0a34f', '#57c48a'];
 
   // ---------------------------------------------------------------
-  // Maker upgrade progression
+  // Station (machine) definitions. Each building lists which of these
+  // are present via BUILDINGS[i].stationIds below. A station with an
+  // "unlockCost" starts locked and must be bought in-game (shown as a
+  // dotted build box on the plot) before customers can order it.
   // ---------------------------------------------------------------
-  const BASE_PRICE       = 3;
-  const BASE_UPGRADE_COST = 10;
-  const COST_GROWTH       = 1.6;   // upgrade cost multiplies by this each level
-  const PRICE_STEP_BASE   = 2;     // price increase grows with level too
-  const PRICE_STEP_GROWTH = 1.4;
+  const STATION_DEFS = {
+    lemonade: {
+      id: 'lemonade', name: 'Lemonade Maker', icon: '🍋',
+      basePrice: 3, baseUpgradeCost: 6, costGrowth: 1.42,
+      priceStepBase: 2, priceStepGrowth: 1.4,
+      baseMakingMs: 5000,
+      milestones: [
+        { level: 10, gems: 1, type: 'multiplier', multiplier: 2 },
+        { level: 15, gems: 1, type: 'extension' },
+        { level: 25, gems: 1, type: 'multiplier', multiplier: 2 }
+      ],
+      liquidColor: '#ffd23f', liquidColorLight: '#ffe27a',
+      lidColor: '#ffd23f', lidEdge: '#f2a900', segmentedLid: true,
+      pos: { x: 210, y: 380, w: 62, h: 82 }
+    },
+    hotdog: {
+      id: 'hotdog', name: 'Hotdog Maker', icon: '🌭',
+      basePrice: 6, baseUpgradeCost: 60, costGrowth: 1.45,
+      priceStepBase: 3, priceStepGrowth: 1.4,
+      baseMakingMs: 6000,
+      unlockCost: 5000,
+      milestones: [
+        { level: 10, gems: 1, type: 'multiplier', multiplier: 2 },
+        { level: 20, gems: 1, type: 'multiplier', multiplier: 2 }
+      ],
+      liquidColor: '#c96a2e', liquidColorLight: '#e08a4a',
+      lidColor: '#8a5a2b', lidEdge: '#5b3a1c', segmentedLid: false,
+      pos: { x: 626, y: 380, w: 62, h: 82 }
+    }
+  };
 
-  let makerLevel = 1;
-  let currentPrice = BASE_PRICE;
+  // ---------------------------------------------------------------
+  // Upgrades sidebar progression (Advertising / Management / Haste)
+  // ---------------------------------------------------------------
+  const ADVERTISING_COST = 150;
+  const MANAGEMENT_COST  = 500;
+  const HASTE_COST       = 1500;
+  const REVIEWS_COST     = 5000;
 
-  function nextUpgradeCost(){
-    return Math.round(BASE_UPGRADE_COST * Math.pow(COST_GROWTH, makerLevel - 1));
+  let advertisingBought = false;
+  let managementBought  = false;
+  let hasteBought        = false;
+  let reviewsBought      = false;
+
+  let gems = 0;
+
+  // ---------------------------------------------------------------
+  // Live station instances for the current building. Rebuilt any time
+  // the building changes (renovation), so progress resets per-building
+  // but the definitions above stay constant.
+  // ---------------------------------------------------------------
+  let stations = {};       // id -> station instance
+  let stationOrder = [];   // ids in this building, in display order
+  let activeStationId = null; // which station's panel is currently shown
+
+  function createStationInstance(id){
+    const def = STATION_DEFS[id];
+    const primarySlot = {
+      x: def.pos.x + SLOT_OFFSET.dx,
+      y: def.pos.y + SLOT_OFFSET.dy,
+      occupant: null
+    };
+    const slots = [primarySlot];
+
+    let posExt = null;
+    if (def.milestones.some(m => m.type === 'extension')){
+      posExt = { x: def.pos.x + def.pos.w + MAKER_GAP, y: def.pos.y, w: def.pos.w, h: def.pos.h };
+      slots.push({
+        x: posExt.x + SLOT_OFFSET.dx,
+        y: posExt.y + SLOT_OFFSET.dy,
+        occupant: null
+      });
+    }
+
+    return {
+      def,
+      level: 1,
+      price: def.basePrice,
+      sellMultiplier: 1,
+      milestonesAwarded: new Set(),
+      extensionAvailable: false,
+      extensionBuilt: false,
+      unlocked: !def.unlockCost,
+      posExt,
+      slots,
+      spoutDrip: slots.map(() => 0)
+    };
   }
-  function nextPriceIncrease(){
-    return Math.round(PRICE_STEP_BASE + (makerLevel - 1) * PRICE_STEP_GROWTH);
+
+  function initStationsForBuilding(idx){
+    const ids = BUILDINGS[idx].stationIds;
+    stations = {};
+    stationOrder = ids.slice();
+    ids.forEach(id => { stations[id] = createStationInstance(id); });
+    activeStationId = stationOrder[0];
+  }
+
+  // ---------------------------------------------------------------
+  // Renovation (rebirth): once fully upgraded, the player can spend
+  // $7500 to renovate into the next building tier. Progress resets but
+  // gems (and the new building's look) persist.
+  // ---------------------------------------------------------------
+  const RENOVATE_COST = 7500;
+  const BUILDINGS = [
+    {
+      name: 'Lemonade Stand',
+      stationIds: ['lemonade'],
+      skyTop: '#7fd8f0', skyBottom: '#bdeef7',
+      grass: '#6bbf59', grassDark: '#5aa649',
+      plot: '#c9ccce', plotEdge: '#b3b7ba',
+      bench: '#f0c987', benchEdge: '#c99a55',
+      cart: '#c8965a', cartEdge: '#9c6a34',
+      sign: '#ff6b5b', signEdge: '#c8483b',
+      umbrellaA: '#6fc3e8', umbrellaB: '#f4f1e6'
+    },
+    {
+      name: 'Classic Stand',
+      stationIds: ['lemonade', 'hotdog'],
+      skyTop: '#a7dff0', skyBottom: '#eaf3df',
+      grass: '#7fbf7a', grassDark: '#63a35e',
+      plot: '#e7ddc8', plotEdge: '#c9b98d',
+      bench: '#8a5a2b', benchEdge: '#5b3a1c',
+      cart: '#7a5230', cartEdge: '#4a3018',
+      sign: '#3d8bf0', signEdge: '#2a63b0',
+      umbrellaA: '#f2a94f', umbrellaB: '#fff4df'
+    }
+  ];
+  let buildingIndex = 0;
+  let renovatePanelOpen = false;
+
+  function currentTheme(){
+    return BUILDINGS[buildingIndex];
+  }
+
+  function getEffectivePrice(station){
+    return station.price * station.sellMultiplier;
+  }
+
+  function nextMilestone(station){
+    return station.def.milestones.find(m => station.level < m.level) || null;
+  }
+
+  function prevMilestoneLevel(station){
+    let prev = 1;
+    for (const m of station.def.milestones){
+      if (station.level >= m.level) prev = m.level; else break;
+    }
+    return prev;
+  }
+
+  function awardGems(amount){
+    gems += amount;
+    gemCountEl.textContent = gems;
+    gemDisplayEl.classList.remove('bump');
+    void gemDisplayEl.offsetWidth;
+    gemDisplayEl.classList.add('bump');
+    setTimeout(() => gemDisplayEl.classList.remove('bump'), 140);
+  }
+
+  function checkMakerMilestones(station){
+    station.def.milestones.forEach(m => {
+      if (station.level >= m.level && !station.milestonesAwarded.has(m.level)){
+        station.milestonesAwarded.add(m.level);
+        awardGems(m.gems);
+        playMilestoneSound();
+        const p = station.def.pos;
+        spawnFloatingText(p.x + p.w / 2, p.y - 20, 'MILESTONE! +' + m.gems + ' 💎');
+
+        if (m.type === 'extension'){
+          station.extensionAvailable = true;
+          spawnFloatingText(p.x + p.w / 2, p.y - 44, 'New Machine Unlocked!');
+        } else {
+          station.sellMultiplier *= m.multiplier;
+          spawnFloatingText(p.x + p.w / 2, p.y - 44, 'x' + m.multiplier + ' Sell Value');
+        }
+      }
+    });
+  }
+
+  function getMakingDuration(station){
+    return hasteBought ? station.def.baseMakingMs / 2 : station.def.baseMakingMs;
+  }
+
+  function nextUpgradeCost(station){
+    return Math.round(station.def.baseUpgradeCost * Math.pow(station.def.costGrowth, station.level - 1));
+  }
+  function nextPriceIncrease(station){
+    return Math.round(station.def.priceStepBase + (station.level - 1) * station.def.priceStepGrowth);
   }
 
   function refreshMakerPanel(){
-    makerLevelEl.textContent = makerLevel;
-    makerPriceEl.textContent = '$' + currentPrice;
-    makerTimeEl.textContent = (BASE_MAKING_MS / 1000).toFixed(1) + 's';
-    upgradeDeltaEl.textContent = nextPriceIncrease();
-    const cost = nextUpgradeCost();
+    const station = stations[activeStationId];
+    if (!station) return;
+    makerTitleEl.textContent = station.def.icon + ' ' + station.def.name;
+    makerLevelEl.textContent = station.level;
+    makerPriceEl.textContent = '$' + getEffectivePrice(station);
+    makerTimeEl.textContent = (getMakingDuration(station) / 1000).toFixed(1) + 's';
+    makerMultiplierEl.textContent = 'x' + station.sellMultiplier;
+    upgradeDeltaEl.textContent = nextPriceIncrease(station);
+    const cost = nextUpgradeCost(station);
     upgradeCostEl.textContent = cost;
     if (money < cost){
       upgradeBtn.classList.add('cantAfford');
     } else {
       upgradeBtn.classList.remove('cantAfford');
     }
+
+    const next = nextMilestone(station);
+    if (next){
+      const prev = prevMilestoneLevel(station);
+      const pct = Math.max(0, Math.min(1, (station.level - prev) / (next.level - prev)));
+      const rewardText = next.type === 'extension'
+        ? '+' + next.gems + ' 💎 &amp; 2nd Machine'
+        : '+' + next.gems + ' 💎 &amp; x' + next.multiplier + ' sell value';
+      milestoneLevelEl.textContent = next.level;
+      milestoneLabelEl.innerHTML = 'Milestone at Lvl ' + next.level + ': <strong>' + rewardText + '</strong>';
+      milestoneBarFill.style.width = (pct * 100) + '%';
+      milestoneBarFill.classList.remove('complete');
+    } else {
+      milestoneLabelEl.innerHTML = '<strong>All milestones unlocked! 💎</strong>';
+      milestoneBarFill.style.width = '100%';
+      milestoneBarFill.classList.add('complete');
+    }
+
+    if (makerMachinesEl){
+      makerMachinesEl.textContent = station.extensionBuilt ? '2' : '1';
+    }
   }
 
   function buyUpgrade(){
-    const cost = nextUpgradeCost();
+    const station = stations[activeStationId];
+    if (!station) return;
+    const cost = nextUpgradeCost(station);
     if (money < cost) {
       blip(180, 0.12, 'sawtooth', 0.08); // gentle "nope" buzz
       return;
     }
     money -= cost;
-    currentPrice += nextPriceIncrease();
-    makerLevel += 1;
+    station.price += nextPriceIncrease(station);
+    station.level += 1;
     playUpgradeSound();
+    checkMakerMilestones(station);
     refreshMakerPanel();
   }
 
@@ -416,22 +1147,35 @@
   const owner = {
     x: IDLE_SPOT.x,
     y: IDLE_SPOT.y,
-    state: 'idle',      // idle | walkToMaker | making | walkToCustomer | walkBack
+    idleX: IDLE_SPOT.x,
+    idleY: IDLE_SPOT.y,
+    claimedStationId: null, // which station this worker is using/heading to
+    claimedSlotIndex: null, // which of that station's slots
+    state: 'idle',      // idle | waitingForMaker | walkToMaker | making | walkToCustomer | walkBack
     makingElapsed: 0,
     facing: 1,
-    bounce: 0
+    bounce: 0,
+    headColor: '#3a2b1a',
+    shirtColor: '#4fb0e0',
+    isOwner: true,
+    targetCustomer: null
   };
 
-  let customer = null;    // only one customer at a time: {x,y,hair,shirt,alpha,happy,leaving}
+  // workers[0] is always the player-named owner. A "Worker" is appended
+  // once the Management upgrade is purchased.
+  let workers = [owner];
+
+  initStationsForBuilding(buildingIndex);
+
+  let customers = [];     // multiple customers can wait once Advertising is bought
   let started = false;
   let lastTime = 0;
   let spawnTimeoutId = null;
   let makerPanelOpen = false;
+  let upgradesSidebarOpen = false;
 
   let floatingTexts = [];  // {x,y,text,vy,alpha,scale}
   let coinParticles = [];  // {sx,sy,ex,ey,t,dur}
-  let spoutDrip = 0;       // >0 briefly when an order finishes, for a drip burst
-
   let audioCtx = null;
 
   // ---------------------------------------------------------------
@@ -472,6 +1216,12 @@
     blip(700, 0.1, 'square', 0.09, 0.08);
     blip(940, 0.16, 'square', 0.10, 0.16);
   }
+  function playMilestoneSound(){
+    blip(660, 0.12, 'triangle', 0.11, 0);
+    blip(880, 0.12, 'triangle', 0.11, 0.1);
+    blip(1100, 0.12, 'triangle', 0.11, 0.2);
+    blip(1320, 0.22, 'triangle', 0.13, 0.3);
+  }
 
   // ---------------------------------------------------------------
   // Name entry
@@ -494,7 +1244,8 @@
   // ---------------------------------------------------------------
   // Maker upgrade panel open/close
   // ---------------------------------------------------------------
-  function openMakerPanel(){
+  function openMakerPanel(stationId){
+    activeStationId = stationId;
     makerPanelOpen = true;
     refreshMakerPanel();
     makerOverlay.classList.remove('hidden');
@@ -510,6 +1261,287 @@
   });
   upgradeBtn.addEventListener('click', buyUpgrade);
 
+  // ---------------------------------------------------------------
+  // Station unlock (buy) panel — shown when tapping a locked machine's
+  // dotted build box, e.g. the Hotdog Maker at the Classic Stand.
+  // ---------------------------------------------------------------
+  let stationBuyTargetId = null;
+
+  function openStationBuyPanel(stationId){
+    const station = stations[stationId];
+    if (!station) return;
+    stationBuyTargetId = stationId;
+    stationBuyTitleEl.textContent = station.def.icon + ' ' + station.def.name;
+    stationBuyDescEl.textContent = 'Unlock a brand new machine so customers can order ' +
+      station.def.name.replace(' Maker', '').toLowerCase() + 's too!';
+    stationBuyCostEl.textContent = station.def.unlockCost.toLocaleString();
+    stationBuyBtn.classList.toggle('cantAfford', money < station.def.unlockCost);
+    stationBuyOverlay.classList.remove('hidden');
+  }
+  function closeStationBuyPanel(){
+    stationBuyOverlay.classList.add('hidden');
+    stationBuyTargetId = null;
+  }
+  function buyStation(){
+    const station = stations[stationBuyTargetId];
+    if (!station || station.unlocked || money < station.def.unlockCost){
+      blip(180, 0.12, 'sawtooth', 0.08);
+      return;
+    }
+    money -= station.def.unlockCost;
+    station.unlocked = true;
+    playUpgradeSound();
+    const p = station.def.pos;
+    spawnFloatingText(p.x + p.w / 2, p.y - 20, 'New Machine!');
+    closeStationBuyPanel();
+  }
+
+  stationBuyClose.addEventListener('click', closeStationBuyPanel);
+  stationBuyOverlay.addEventListener('click', (e) => {
+    if (e.target === stationBuyOverlay) closeStationBuyPanel();
+  });
+  stationBuyBtn.addEventListener('click', buyStation);
+
+  // ---------------------------------------------------------------
+  // Upgrades sidebar open/close + purchases
+  // ---------------------------------------------------------------
+  function openUpgradesSidebar(){
+    upgradesSidebarOpen = true;
+    refreshUpgradesSidebar();
+    upgradesSidebar.classList.add('open');
+    upgradesBackdrop.classList.remove('hidden');
+  }
+  function closeUpgradesSidebar(){
+    upgradesSidebarOpen = false;
+    upgradesSidebar.classList.remove('open');
+    upgradesBackdrop.classList.add('hidden');
+    refreshUpgradesBadge();
+  }
+
+  upgradesToggleBtn.addEventListener('click', () => {
+    if (upgradesSidebarOpen) closeUpgradesSidebar(); else openUpgradesSidebar();
+  });
+  upgradesClose.addEventListener('click', closeUpgradesSidebar);
+  upgradesBackdrop.addEventListener('click', closeUpgradesSidebar);
+
+  function setBuyBtnState(btn, owned, cost){
+    if (owned){
+      btn.innerHTML = 'Owned';
+      btn.classList.add('owned');
+      btn.classList.remove('cantAfford');
+    } else {
+      btn.innerHTML = 'Buy<small>$' + cost + '</small>';
+      btn.classList.remove('owned');
+      if (money < cost) btn.classList.add('cantAfford'); else btn.classList.remove('cantAfford');
+    }
+  }
+
+  function refreshUpgradesSidebar(){
+    setBuyBtnState(advertisingBuyBtn, advertisingBought, ADVERTISING_COST);
+    setBuyBtnState(managementBuyBtn, managementBought, MANAGEMENT_COST);
+    setBuyBtnState(hasteBuyBtn, hasteBought, HASTE_COST);
+    setBuyBtnState(reviewsBuyBtn, reviewsBought, REVIEWS_COST);
+  }
+
+  function anyUpgradeAffordable(){
+    return (!advertisingBought && money >= ADVERTISING_COST) ||
+           (!managementBought && money >= MANAGEMENT_COST) ||
+           (!hasteBought && money >= HASTE_COST) ||
+           (!reviewsBought && money >= REVIEWS_COST);
+  }
+
+  function refreshUpgradesBadge(){
+    if (!upgradesSidebarOpen && anyUpgradeAffordable()){
+      upgradesBadge.classList.remove('hidden');
+    } else {
+      upgradesBadge.classList.add('hidden');
+    }
+  }
+
+  function buyAdvertising(){
+    if (advertisingBought || money < ADVERTISING_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= ADVERTISING_COST;
+    advertisingBought = true;
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+  }
+
+  function buyManagement(){
+    if (managementBought || money < MANAGEMENT_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= MANAGEMENT_COST;
+    managementBought = true;
+    workers.push({
+      x: IDLE_SPOT2.x,
+      y: IDLE_SPOT2.y,
+      idleX: IDLE_SPOT2.x,
+      idleY: IDLE_SPOT2.y,
+      claimedStationId: null,
+      claimedSlotIndex: null,
+      state: 'idle',
+      makingElapsed: 0,
+      facing: 1,
+      bounce: 0,
+      headColor: '#3a2b1a',
+      shirtColor: '#e0a34f',
+      isOwner: false,
+      targetCustomer: null
+    });
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+  }
+
+  function buyHaste(){
+    if (hasteBought || money < HASTE_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= HASTE_COST;
+    hasteBought = true;
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+    if (makerPanelOpen) refreshMakerPanel();
+  }
+
+  function buyReviews(){
+    if (reviewsBought || money < REVIEWS_COST){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+    money -= REVIEWS_COST;
+    reviewsBought = true;
+    playUpgradeSound();
+    refreshUpgradesSidebar();
+  }
+
+  advertisingBuyBtn.addEventListener('click', buyAdvertising);
+  managementBuyBtn.addEventListener('click', buyManagement);
+  hasteBuyBtn.addEventListener('click', buyHaste);
+  reviewsBuyBtn.addEventListener('click', buyReviews);
+
+  // ---------------------------------------------------------------
+  // Renovation panel open/close + logic
+  // ---------------------------------------------------------------
+  function renovationRequirements(){
+    return [
+      { row: reqMoneyRow, met: money >= RENOVATE_COST },
+      { row: reqAdvertisingRow, met: advertisingBought },
+      { row: reqManagementRow, met: managementBought },
+      { row: reqHasteRow, met: hasteBought },
+      { row: reqReviewsRow, met: reviewsBought },
+      { row: reqLevelRow, met: stations.lemonade.level >= 25 }
+    ];
+  }
+
+  function hasNextBuilding(){
+    return buildingIndex < BUILDINGS.length - 1;
+  }
+
+  function canRenovate(){
+    return hasNextBuilding() && renovationRequirements().every(r => r.met);
+  }
+
+  function refreshRenovatePanel(){
+    buildingCurrentEl.textContent = currentTheme().name;
+
+    if (hasNextBuilding()){
+      buildingNextEl.textContent = BUILDINGS[buildingIndex + 1].name;
+
+      reqMoneyRow.querySelector('.reqText').textContent =
+        'Save $' + Math.min(money, RENOVATE_COST).toLocaleString() + ' / $' + RENOVATE_COST.toLocaleString();
+
+      const reqs = renovationRequirements();
+      reqs.forEach(r => r.row.classList.toggle('met', r.met));
+      const pct = reqs.filter(r => r.met).length / reqs.length;
+      renovateBarFill.style.width = (pct * 100) + '%';
+
+      reqListEl.classList.remove('hidden');
+      renovateBtn.classList.remove('hidden');
+      renovateBtn.classList.toggle('cantAfford', !canRenovate());
+    } else {
+      buildingNextEl.textContent = 'Maxed out!';
+      renovateBarFill.style.width = '100%';
+      reqListEl.classList.add('hidden');
+      renovateBtn.classList.add('hidden');
+    }
+  }
+
+  function openRenovatePanel(){
+    renovatePanelOpen = true;
+    refreshRenovatePanel();
+    renovateOverlay.classList.remove('hidden');
+  }
+  function closeRenovatePanel(){
+    renovatePanelOpen = false;
+    renovateOverlay.classList.add('hidden');
+    refreshRenovateBadge();
+  }
+
+  function refreshRenovateBadge(){
+    if (!renovatePanelOpen && canRenovate()){
+      renovateBadge.classList.remove('hidden');
+    } else {
+      renovateBadge.classList.add('hidden');
+    }
+  }
+
+  function applyBuildingTheme(index){
+    const t = BUILDINGS[index];
+    const root = document.documentElement.style;
+    root.setProperty('--sky-top', t.skyTop);
+    root.setProperty('--sky-bottom', t.skyBottom);
+    root.setProperty('--grass', t.grass);
+    root.setProperty('--grass-dark', t.grassDark);
+    root.setProperty('--plot', t.plot);
+    root.setProperty('--plot-edge', t.plotEdge);
+  }
+
+  function doRenovate(){
+    if (!canRenovate()){ blip(180, 0.12, 'sawtooth', 0.08); return; }
+
+    buildingIndex += 1;
+    applyBuildingTheme(buildingIndex);
+
+    // ---- reset progress ----
+    money = 0;
+    displayedMoney = 0;
+    initStationsForBuilding(buildingIndex);
+    advertisingBought = false;
+    managementBought = false;
+    hasteBought = false;
+    reviewsBought = false;
+
+    customers = [];
+    slotAvailableAt = [0, 0];
+    clearTimeout(spawnTimeoutId);
+    scheduleNextSpawn(500);
+
+    workers = [owner];
+    owner.x = IDLE_SPOT.x;
+    owner.y = IDLE_SPOT.y;
+    owner.claimedStationId = null;
+    owner.claimedSlotIndex = null;
+    owner.state = 'idle';
+    owner.makingElapsed = 0;
+    owner.targetCustomer = null;
+
+    floatingTexts = [];
+    coinParticles = [];
+
+    moneyCountEl.textContent = '0';
+    refreshUpgradesSidebar();
+    if (makerPanelOpen) closeMakerPanel();
+    closeRenovatePanel();
+
+    awardGems(3);
+    playMilestoneSound();
+    const p = stations.lemonade.def.pos;
+    spawnFloatingText(p.x + p.w / 2, p.y - 40, 'Renovated! 🔨');
+    spawnFloatingText(p.x + p.w / 2, p.y - 64, '+3 💎');
+
+    refreshRenovateBadge();
+  }
+
+  renovateToggleBtn.addEventListener('click', openRenovatePanel);
+  renovateClose.addEventListener('click', closeRenovatePanel);
+  renovateOverlay.addEventListener('click', (e) => {
+    if (e.target === renovateOverlay) closeRenovatePanel();
+  });
+  renovateBtn.addEventListener('click', doRenovate);
+
   canvas.addEventListener('click', (e) => {
     if (!started) return;
     const rect = canvas.getBoundingClientRect();
@@ -518,54 +1550,159 @@
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
-    const withinMaker = x >= MAKER.x - 12 && x <= MAKER.x + MAKER.w + 12 &&
-                         y >= MAKER.y - 24 && y <= MAKER.y + MAKER.h + 20;
+    for (const id of stationOrder){
+      const station = stations[id];
+      const p = station.def.pos;
 
-    if (withinMaker) openMakerPanel();
+      if (!station.unlocked){
+        const withinLocked = x >= p.x - 12 && x <= p.x + p.w + 12 &&
+                              y >= p.y - 24 && y <= p.y + p.h + 20;
+        if (withinLocked){ openStationBuyPanel(id); return; }
+        continue;
+      }
+
+      const withinPrimary = x >= p.x - 12 && x <= p.x + p.w + 12 &&
+                             y >= p.y - 24 && y <= p.y + p.h + 20;
+      if (withinPrimary){ openMakerPanel(id); return; }
+
+      if (station.extensionAvailable && station.posExt){
+        const p2 = station.posExt;
+        const withinExt = x >= p2.x - 12 && x <= p2.x + p2.w + 12 &&
+                           y >= p2.y - 24 && y <= p2.y + p2.h + 24;
+        if (withinExt){
+          if (station.extensionBuilt) openMakerPanel(id); else buildExtension(id);
+          return;
+        }
+      }
+    }
   });
 
   // ---------------------------------------------------------------
-  // Single-customer order flow (one customer, one lemonade, at a time)
+  // Customer order flow (one customer by default, two once Advertising
+  // is bought; served by the owner and, once Management is bought, a
+  // second Worker too)
   // ---------------------------------------------------------------
+  function maxCustomerSlots(){
+    return advertisingBought ? 2 : 1;
+  }
+
+  const SLOT_EMPTY_COOLDOWN_MS = 5000; // a spot stays empty this long after a customer leaves
+  let slotAvailableAt = [0, 0]; // performance.now() timestamp when each slot can spawn again
+
   function scheduleNextSpawn(delay){
     clearTimeout(spawnTimeoutId);
-    const d = delay !== undefined ? delay : (SPAWN_MIN_MS + Math.random() * (SPAWN_MAX_MS - SPAWN_MIN_MS));
-    spawnTimeoutId = setTimeout(spawnCustomer, d);
+    const spawnFactor = reviewsBought ? 0.5 : 1;
+    const d = delay !== undefined ? delay : (SPAWN_MIN_MS + Math.random() * (SPAWN_MAX_MS - SPAWN_MIN_MS)) * spawnFactor;
+    spawnTimeoutId = setTimeout(() => { spawnCustomer(); scheduleNextSpawn(); }, d);
   }
 
   function spawnCustomer(){
-    if (customer) return; // never more than one customer at a time
-    customer = {
-      x: CUSTOMER_SPOT.x + 40,
-      y: CUSTOMER_SPOT.y - 30,
-      tx: CUSTOMER_SPOT.x,
-      ty: CUSTOMER_SPOT.y,
+    const maxSlots = maxCustomerSlots();
+    if (customers.length >= maxSlots) return;
+
+    const unlockedIds = stationOrder.filter(id => stations[id].unlocked);
+    if (unlockedIds.length === 0) return;
+
+    const usedSlots = customers.map(c => c.slotIndex);
+    const now = performance.now();
+    let slotIndex = -1;
+    for (let i = 0; i < maxSlots; i++){
+      if (!usedSlots.includes(i) && now >= slotAvailableAt[i]){ slotIndex = i; break; }
+    }
+    if (slotIndex === -1) return;
+
+    const productId = unlockedIds[Math.floor(Math.random() * unlockedIds.length)];
+    const slot = CUSTOMER_SPOTS[slotIndex];
+    customers.push({
+      slotIndex,
+      productId,
+      x: slot.spot.x + 40,
+      y: slot.spot.y - 30,
+      tx: slot.spot.x,
+      ty: slot.spot.y,
+      serveX: slot.serve.x,
+      serveY: slot.serve.y,
       hair: HAIR_COLORS[Math.floor(Math.random() * HAIR_COLORS.length)],
       shirt: SHIRT_COLORS[Math.floor(Math.random() * SHIRT_COLORS.length)],
       alpha: 0,
       happy: 0,
-      leaving: false
-    };
+      leaving: false,
+      beingServed: false
+    });
   }
 
-  function tryServeNext(){
-    if (owner.state === 'idle' && customer && !customer.leaving && customer.alpha >= 1){
-      owner.state = 'walkToMaker';
+  // ---------------------------------------------------------------
+  // Maker slot occupancy: only one worker may occupy a given station's
+  // machine at a time. Slot 0 (the original machine) is always usable;
+  // slot 1 (an extension, where one exists) only opens up once built.
+  // ---------------------------------------------------------------
+  function claimMakerSlot(station, w){
+    for (let i = 0; i < station.slots.length; i++){
+      if (i === 1 && !station.extensionBuilt) continue;
+      const slot = station.slots[i];
+      if (!slot.occupant){
+        slot.occupant = w;
+        w.claimedStationId = station.def.id;
+        w.claimedSlotIndex = i;
+        return slot;
+      }
+    }
+    return null;
+  }
+
+  function releaseMakerSlot(w){
+    const station = stations[w.claimedStationId];
+    const idx = w.claimedSlotIndex;
+    if (station && idx !== null && idx !== undefined && station.slots[idx].occupant === w){
+      station.slots[idx].occupant = null;
     }
   }
 
-  function deliverOrder(){
-    if (customer){
-      money += currentPrice;
-      customer.happy = 1;
-      customer.leaving = true;
+  function buildExtension(stationId){
+    const station = stations[stationId];
+    if (!station || !station.extensionAvailable || station.extensionBuilt) return;
+    station.extensionBuilt = true;
+    playUpgradeSound();
+    const p = station.posExt;
+    spawnFloatingText(p.x + p.w / 2, p.y - 20, 'New Machine!');
+    if (makerPanelOpen && activeStationId === stationId) refreshMakerPanel();
+    // if a worker is already waiting on this station, let it grab the freshly built slot right away
+    workers.forEach(w => { if (w.state === 'waitingForMaker' && w.targetCustomer && w.targetCustomer.productId === stationId){
+      const slot = claimMakerSlot(station, w);
+      if (slot) w.state = 'walkToMaker';
+    }});
+  }
 
-      spawnFloatingText(SERVE_SPOT.x, SERVE_SPOT.y - 50, '+$' + currentPrice);
-      spawnCoinParticle(SERVE_SPOT.x, SERVE_SPOT.y - 30);
+  function tryServeNext(w){
+    if (w.state !== 'idle') return;
+    const c = customers.find(c => !c.beingServed && !c.leaving && c.alpha >= 1);
+    if (c){
+      c.beingServed = true;
+      w.targetCustomer = c;
+      const station = stations[c.productId];
+      const slot = claimMakerSlot(station, w);
+      w.state = slot ? 'walkToMaker' : 'waitingForMaker';
+    }
+  }
+
+  function deliverOrder(w){
+    const c = w.targetCustomer;
+    if (c){
+      const station = stations[c.productId];
+      const earned = getEffectivePrice(station);
+      money += earned;
+      c.happy = 1;
+      c.leaving = true;
+
+      spawnFloatingText(c.serveX, c.serveY - 50, '+$' + earned);
+      spawnCoinParticle(c.serveX, c.serveY - 30);
       playCoinSound();
-      if (makerPanelOpen) refreshMakerPanel();
+      if (makerPanelOpen && activeStationId === c.productId) refreshMakerPanel();
+      if (upgradesSidebarOpen) refreshUpgradesSidebar();
     }
-    owner.state = 'walkBack';
+    w.targetCustomer = null;
+    w.claimedStationId = null;
+    w.state = 'walkBack';
   }
 
   function spawnFloatingText(x, y, text){
@@ -603,55 +1740,82 @@
   // ---------------------------------------------------------------
   // Update
   // ---------------------------------------------------------------
-  function update(dt, now){
-    switch (owner.state){
+  function updateWorker(w, dt, now){
+    switch (w.state){
+      case 'waitingForMaker':
+        { const station = stations[w.targetCustomer ? w.targetCustomer.productId : null];
+          if (station){
+            const slot = claimMakerSlot(station, w);
+            if (slot) w.state = 'walkToMaker';
+          }
+        }
+        break;
+
       case 'walkToMaker':
-        if (moveToward(owner, MAKER_SPOT.x, MAKER_SPOT.y, dt)){
-          owner.state = 'making';
-          owner.makingElapsed = 0;
-          playPourSound();
+        { const station = stations[w.claimedStationId];
+          const slot = station.slots[w.claimedSlotIndex];
+          if (moveToward(w, slot.x, slot.y, dt)){
+            w.state = 'making';
+            w.makingElapsed = 0;
+            playPourSound();
+          }
         }
         break;
 
       case 'making':
-        owner.makingElapsed += dt * 1000;
-        if (owner.makingElapsed >= BASE_MAKING_MS){
-          owner.state = 'walkToCustomer';
-          spoutDrip = 1;
+        { const station = stations[w.claimedStationId];
+          w.makingElapsed += dt * 1000;
+          if (w.makingElapsed >= getMakingDuration(station)){
+            w.state = 'walkToCustomer';
+            station.spoutDrip[w.claimedSlotIndex] = 1;
+            releaseMakerSlot(w); // machine is free again the instant the order is ready
+          }
         }
         break;
 
       case 'walkToCustomer':
-        if (moveToward(owner, SERVE_SPOT.x, SERVE_SPOT.y, dt)){
-          deliverOrder();
+        if (w.targetCustomer && moveToward(w, w.targetCustomer.serveX, w.targetCustomer.serveY, dt)){
+          deliverOrder(w);
         }
         break;
 
       case 'walkBack':
-        if (moveToward(owner, IDLE_SPOT.x, IDLE_SPOT.y, dt)){
-          owner.state = 'idle';
+        if (moveToward(w, w.idleX, w.idleY, dt)){
+          w.state = 'idle';
         }
         break;
 
       default:
-        tryServeNext();
+        tryServeNext(w);
         break;
     }
 
-    if (spoutDrip > 0) spoutDrip = Math.max(0, spoutDrip - dt * 1.2);
+    w.bounce = Math.sin(now / 260) * ((w.state === 'idle' || w.state === 'waitingForMaker') ? 1.5 : 2.5);
+  }
 
-    if (customer){
-      if (customer.leaving){
-        customer.alpha = Math.max(0, customer.alpha - dt * 1.6);
-        customer.y -= dt * 55;
-        customer.happy = Math.max(0, customer.happy - dt * 0.8);
-        if (customer.alpha <= 0){
-          customer = null;
-          scheduleNextSpawn();
+  function update(dt, now){
+    workers.forEach(w => updateWorker(w, dt, now));
+
+    stationOrder.forEach(id => {
+      const drip = stations[id].spoutDrip;
+      for (let i = 0; i < drip.length; i++){
+        if (drip[i] > 0) drip[i] = Math.max(0, drip[i] - dt * 1.2);
+      }
+    });
+
+    for (let i = customers.length - 1; i >= 0; i--){
+      const c = customers[i];
+      if (c.leaving){
+        c.alpha = Math.max(0, c.alpha - dt * 1.6);
+        c.y -= dt * 55;
+        c.happy = Math.max(0, c.happy - dt * 0.8);
+        if (c.alpha <= 0){
+          slotAvailableAt[c.slotIndex] = performance.now() + SLOT_EMPTY_COOLDOWN_MS;
+          customers.splice(i, 1);
         }
       } else {
-        if (customer.alpha < 1) customer.alpha = Math.min(1, customer.alpha + dt * 3);
-        moveToward(customer, customer.tx, customer.ty, dt);
+        if (c.alpha < 1) c.alpha = Math.min(1, c.alpha + dt * 3);
+        moveToward(c, c.tx, c.ty, dt);
       }
     }
 
@@ -678,8 +1842,12 @@
       displayedMoney = money;
     }
     moneyCountEl.textContent = Math.round(displayedMoney);
-
-    owner.bounce = Math.sin(now / 260) * (owner.state === 'idle' ? 1.5 : 2.5);
+    refreshUpgradesBadge();
+    refreshRenovateBadge();
+    if (renovatePanelOpen) refreshRenovatePanel();
+    if (stationBuyTargetId){
+      stationBuyBtn.classList.toggle('cantAfford', money < stations[stationBuyTargetId].def.unlockCost);
+    }
   }
 
   function bumpMoneyUI(){
@@ -725,7 +1893,7 @@
   }
 
   function drawBackground(){
-    ctx.fillStyle = '#6bbf59';
+    ctx.fillStyle = currentTheme().grass;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'rgba(255,255,255,0.05)';
     for (let i = 0; i < 40; i++){
@@ -738,8 +1906,9 @@
   }
 
   function drawPlot(){
+    const t = currentTheme();
     roundRect(PLOT.x + 6, PLOT.y + 10, PLOT.w, PLOT.h, PLOT.r, 'rgba(0,0,0,0.12)');
-    roundRect(PLOT.x, PLOT.y, PLOT.w, PLOT.h, PLOT.r, '#c9ccce', '#b3b7ba', 4);
+    roundRect(PLOT.x, PLOT.y, PLOT.w, PLOT.h, PLOT.r, t.plot, t.plotEdge, 4);
     ctx.strokeStyle = 'rgba(255,255,255,0.25)';
     ctx.lineWidth = 1;
     for (let gx = PLOT.x + 40; gx < PLOT.x + PLOT.w; gx += 40){
@@ -751,17 +1920,22 @@
   }
 
   function drawBench(){
+    const t = currentTheme();
     roundRect(BENCH.x + 4, BENCH.y + 6, BENCH.w, BENCH.h, BENCH.r, 'rgba(0,0,0,0.12)');
-    roundRect(BENCH.x, BENCH.y, BENCH.w, BENCH.h, BENCH.r, '#f0c987', '#c99a55', 3);
-    ctx.fillStyle = '#c99a55';
+    roundRect(BENCH.x, BENCH.y, BENCH.w, BENCH.h, BENCH.r, t.bench, t.benchEdge, 3);
+    ctx.fillStyle = t.benchEdge;
     ctx.fillRect(BENCH.x + 20, BENCH.y + BENCH.h - 2, 6, 14);
     ctx.fillRect(BENCH.x + BENCH.w - 26, BENCH.y + BENCH.h - 2, 6, 14);
   }
 
-  // ---- The lemonade maker: a small, person-scaled juice machine ----
-  function drawMaker(){
-    const mx = MAKER.x, my = MAKER.y, mw = MAKER.w, mh = MAKER.h;
-
+  // ---- A station's machine: a small, person-scaled countertop unit ----
+  // slotIndex identifies which of the station's slots (and therefore
+  // which worker, if any) this physical machine corresponds to.
+  // showBadge controls whether the upgrade-available notification is
+  // drawn here (only the primary machine shows it per station).
+  function drawMachine(mx, my, mw, mh, station, slotIndex, showBadge){
+    const t = currentTheme();
+    const def = station.def;
     const standH   = mh * 0.30;
     const tankH    = mh * 0.62;
     const tankW    = mw * 0.72;
@@ -775,8 +1949,8 @@
     ctx.fill();
 
     // small cart / stand
-    roundRect(mx - 4, my + mh - standH, mw + 8, standH, 6, '#c8965a', '#9c6a34', 2);
-    ctx.fillStyle = '#5a3f22';
+    roundRect(mx - 4, my + mh - standH, mw + 8, standH, 6, t.cart, t.cartEdge, 2);
+    ctx.fillStyle = t.cartEdge;
     ctx.beginPath(); ctx.arc(mx + 6, my + mh + 2, 3.5, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.arc(mx + mw - 6, my + mh + 2, 3.5, 0, Math.PI * 2); ctx.fill();
 
@@ -790,12 +1964,14 @@
     roundRect(tankX + 2, tankY + 2, tankW - 4, tankH - 4, 6);
     ctx.clip();
 
-    const fillPct = owner.state === 'making'
-      ? Math.min(1, owner.makingElapsed / BASE_MAKING_MS)
-      : (owner.state === 'walkToCustomer' || owner.state === 'walkBack' ? 1 : 0.15);
+    const makingWorker = workers.find(w => w.state === 'making' && w.claimedStationId === def.id && w.claimedSlotIndex === slotIndex);
+    const pouringWorker = workers.find(w => (w.state === 'walkToCustomer' || w.state === 'walkBack') && w.claimedStationId === def.id && w.claimedSlotIndex === slotIndex);
+    const fillPct = makingWorker
+      ? Math.min(1, makingWorker.makingElapsed / getMakingDuration(station))
+      : (pouringWorker ? 1 : 0.15);
     const liquidTop = tankY + tankH * (1 - fillPct);
 
-    ctx.fillStyle = '#ffd23f';
+    ctx.fillStyle = def.liquidColor;
     ctx.fillRect(tankX, liquidTop, tankW, tankH);
 
     if (fillPct > 0.02){
@@ -806,7 +1982,7 @@
       ctx.lineTo(tankX + tankW, liquidTop + 4);
       ctx.lineTo(tankX, liquidTop + 4);
       ctx.closePath();
-      ctx.fillStyle = '#ffe27a';
+      ctx.fillStyle = def.liquidColorLight;
       ctx.fill();
     }
     ctx.restore();
@@ -817,21 +1993,23 @@
     ctx.ellipse(tankX + tankW * 0.28, tankY + 10, 2.6, 12, -0.2, 0, Math.PI * 2);
     ctx.fill();
 
-    // lemon lid on top of the tank
+    // lid on top of the tank
     const lidCx = tankX + tankW / 2, lidCy = tankY - 4;
     const lidR = mw * 0.14;
     ctx.beginPath();
     ctx.arc(lidCx, lidCy, lidR, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffd23f';
+    ctx.fillStyle = def.lidColor;
     ctx.fill();
-    ctx.strokeStyle = '#f2a900';
+    ctx.strokeStyle = def.lidEdge;
     ctx.lineWidth = 1.3;
     ctx.stroke();
-    for (let a = 0; a < Math.PI * 2; a += Math.PI / 4){
-      ctx.beginPath();
-      ctx.moveTo(lidCx, lidCy);
-      ctx.lineTo(lidCx + Math.cos(a) * lidR * 0.8, lidCy + Math.sin(a) * lidR * 0.8);
-      ctx.stroke();
+    if (def.segmentedLid){
+      for (let a = 0; a < Math.PI * 2; a += Math.PI / 4){
+        ctx.beginPath();
+        ctx.moveTo(lidCx, lidCy);
+        ctx.lineTo(lidCx + Math.cos(a) * lidR * 0.8, lidCy + Math.sin(a) * lidR * 0.8);
+        ctx.stroke();
+      }
     }
 
     // spout + tap lever
@@ -847,10 +2025,11 @@
     ctx.fillStyle = '#c8cdd2';
     ctx.fill();
 
-    if (spoutDrip > 0){
-      ctx.fillStyle = `rgba(255,210,63,${spoutDrip})`;
+    const drip = station.spoutDrip[slotIndex] || 0;
+    if (drip > 0){
+      ctx.fillStyle = `rgba(255,210,63,${drip})`;
       for (let i = 0; i < 3; i++){
-        const dy = (1 - spoutDrip) * (10 + i * 6);
+        const dy = (1 - drip) * (10 + i * 6);
         ctx.beginPath();
         ctx.arc(spoutX + (i - 1) * 4, spoutY + 10 + dy, 1.8, 0, Math.PI * 2);
         ctx.fill();
@@ -858,26 +2037,146 @@
     }
 
     // small sign on the cart + level badge
-    roundRect(mx - 3, my + mh - standH + 3, mw + 6, 12, 3, '#ff6b5b', '#c8483b', 1.2);
+    roundRect(mx - 3, my + mh - standH + 3, mw + 6, 12, 3, t.sign, t.signEdge, 1.2);
     ctx.font = '700 8px "Baloo 2", sans-serif';
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('LVL ' + makerLevel, mx + mw / 2, my + mh - standH + 9);
+    ctx.fillText('LVL ' + station.level, mx + mw / 2, my + mh - standH + 9);
 
     // progress bar while making
-    if (owner.state === 'making'){
-      const pct = Math.min(1, owner.makingElapsed / BASE_MAKING_MS);
+    if (makingWorker){
+      const pct = Math.min(1, makingWorker.makingElapsed / getMakingDuration(station));
       const barW = mw + 16, barX = mx - 8, barY = my + mh + 12;
       roundRect(barX, barY, barW, 7, 3.5, '#00000022');
-      roundRect(barX, barY, barW * pct, 7, 3.5, '#ffd23f');
+      roundRect(barX, barY, barW * pct, 7, 3.5, def.liquidColor);
     }
 
     // little "upgrade available" badge, angled, top-right of the machine
-    if (!makerPanelOpen && money >= nextUpgradeCost()){
+    if (showBadge && !(makerPanelOpen && activeStationId === def.id) && money >= nextUpgradeCost(station)){
       const pulse = 1 + Math.sin(performance.now() / 220) * 0.08;
       drawUpgradeBadge(mx + mw + 4, tankY - 6, pulse);
     }
+  }
+
+  function drawMaker(){
+    stationOrder.forEach(id => {
+      const station = stations[id];
+      const p = station.def.pos;
+
+      if (!station.unlocked){
+        drawLockedStationBox(station);
+        return;
+      }
+
+      drawMachine(p.x, p.y, p.w, p.h, station, 0, true);
+
+      if (station.posExt){
+        if (station.extensionBuilt){
+          drawMachine(station.posExt.x, station.posExt.y, station.posExt.w, station.posExt.h, station, 1, false);
+        } else if (station.extensionAvailable){
+          drawExtensionBuildBox(station);
+        }
+      }
+    });
+  }
+
+  // A tappable wooden crate shown once a machine's "extension" milestone is
+  // reached but before the player has built the 2nd machine (Eatventure-style).
+  function drawExtensionBuildBox(station){
+    const mx = station.posExt.x, my = station.posExt.y, mw = station.posExt.w, mh = station.posExt.h;
+    const crateH = mh * 0.62;
+    const crateY = my + (mh - crateH);
+    const pulse = 1 + Math.sin(performance.now() / 260) * 0.03;
+
+    ctx.save();
+    ctx.translate(mx + mw / 2, crateY + crateH / 2);
+    ctx.scale(pulse, pulse);
+    ctx.translate(-(mx + mw / 2), -(crateY + crateH / 2));
+
+    // shadow
+    ctx.beginPath();
+    ctx.ellipse(mx + mw / 2, my + mh + 4, mw * 0.6, 6, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fill();
+
+    // crate body
+    roundRect(mx, crateY, mw, crateH, 4, '#b9793f', '#7c4d24', 2.5);
+
+    // plank seams
+    ctx.strokeStyle = '#8f5b2c';
+    ctx.lineWidth = 1.5;
+    for (let py = crateY + crateH * 0.33; py < crateY + crateH; py += crateH * 0.33){
+      ctx.beginPath();
+      ctx.moveTo(mx + 3, py);
+      ctx.lineTo(mx + mw - 3, py);
+      ctx.stroke();
+    }
+
+    // corner braces
+    ctx.strokeStyle = '#7c4d24';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(mx + 4, crateY + 4);
+    ctx.lineTo(mx + mw - 4, crateY + crateH - 4);
+    ctx.moveTo(mx + mw - 4, crateY + 4);
+    ctx.lineTo(mx + 4, crateY + crateH - 4);
+    ctx.stroke();
+
+    // top rim highlight
+    roundRect(mx - 2, crateY - 4, mw + 4, 8, 3, '#d59a5c', '#7c4d24', 1.5);
+
+    ctx.restore();
+
+    ctx.font = '700 9px "Baloo 2", sans-serif';
+    ctx.fillStyle = '#5a3f22';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Tap to build!', mx + mw / 2, my + mh + 16);
+  }
+
+  // A dashed white cube shown for a station that hasn't been bought yet
+  // (e.g. the Hotdog Maker at the Classic Stand). Tapping it opens the
+  // buy panel showing its unlock cost.
+  function drawLockedStationBox(station){
+    const p = station.def.pos;
+    const mx = p.x, my = p.y, mw = p.w, mh = p.h;
+    const boxH = mh * 0.62;
+    const boxY = my + (mh - boxH);
+    const pulse = 1 + Math.sin(performance.now() / 260) * 0.03;
+
+    ctx.save();
+    ctx.translate(mx + mw / 2, boxY + boxH / 2);
+    ctx.scale(pulse, pulse);
+    ctx.translate(-(mx + mw / 2), -(boxY + boxH / 2));
+
+    // shadow
+    ctx.beginPath();
+    ctx.ellipse(mx + mw / 2, my + mh + 4, mw * 0.6, 6, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fill();
+
+    // dotted white cube outline
+    ctx.beginPath();
+    ctx.moveTo(mx + 6, boxY);
+    ctx.arcTo(mx + mw, boxY,        mx + mw, boxY + boxH, 6);
+    ctx.arcTo(mx + mw, boxY + boxH, mx,       boxY + boxH, 6);
+    ctx.arcTo(mx,       boxY + boxH, mx,      boxY,        6);
+    ctx.arcTo(mx,       boxY,        mx + mw, boxY,        6);
+    ctx.closePath();
+    ctx.setLineDash([6, 5]);
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.restore();
+
+    ctx.font = '700 9px "Baloo 2", sans-serif';
+    ctx.fillStyle = '#5a3f22';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(station.def.icon + ' Tap to unlock', mx + mw / 2, my + mh + 16);
   }
 
   function drawUpgradeBadge(cx, cy, scale){
@@ -962,7 +2261,7 @@
     }
   }
 
-  function drawSpeechBubble(x, y, alpha){
+  function drawSpeechBubble(x, y, alpha, icon){
     ctx.save();
     ctx.globalAlpha = alpha;
     const w = 46, h = 40;
@@ -978,7 +2277,7 @@
     ctx.font = '24px "Nunito", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('🍋', x, by + h / 2);
+    ctx.fillText(icon || '🍋', x, by + h / 2);
     ctx.restore();
   }
 
@@ -1014,21 +2313,28 @@
   }
 
   function draw(now){
+    const t = currentTheme();
     drawBackground();
-    drawUmbrella(70, 470, 78, '#6fc3e8', '#f4f1e6');
-    drawUmbrella(830, 470, 78, '#6fc3e8', '#f4f1e6');
+    drawUmbrella(70, 470, 78, t.umbrellaA, t.umbrellaB);
+    drawUmbrella(830, 470, 78, t.umbrellaA, t.umbrellaB);
 
     drawPlot();
     drawBench();
     drawMaker();
 
-    if (customer){
-      const bob = customer.leaving ? 0 : Math.sin(now / 300) * 1.2;
-      drawPerson(customer.x, customer.y, customer.hair, customer.shirt, 'Customer', -1, bob, customer.happy);
-      if (!customer.leaving) drawSpeechBubble(customer.x, customer.y - 30, customer.alpha);
-    }
+    customers.forEach(c => {
+      const bob = c.leaving ? 0 : Math.sin(now / 300) * 1.2;
+      drawPerson(c.x, c.y, c.hair, c.shirt, 'Customer', -1, bob, c.happy);
+      if (!c.leaving){
+        const st = stations[c.productId];
+        drawSpeechBubble(c.x, c.y - 30, c.alpha, st ? st.def.icon : '🍋');
+      }
+    });
 
-    drawPerson(owner.x, owner.y, '#3a2b1a', '#4fb0e0', playerName, owner.facing, owner.bounce, 0);
+    workers.forEach(w => {
+      const label = w.isOwner ? playerName : w.label || 'Worker';
+      drawPerson(w.x, w.y, w.headColor, w.shirtColor, label, w.facing, w.bounce, 0);
+    });
 
     drawFloatingTexts();
     drawCoinParticles();
