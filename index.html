@@ -926,8 +926,9 @@
       <div class="statRow"><span>Machines</span><span id="makerMachinesEl">1</span></div>
 
       <button id="upgradeBtn">
-        Upgrade Price +$<span id="upgradeDeltaEl">2</span>
-        <small>Cost: $<span id="upgradeCostEl">10</span></small>
+        <span id="upgradeBtnLabel">Upgrade Price +$<span id="upgradeDeltaEl">2</span>
+        <small>Cost: $<span id="upgradeCostEl">10</span></small></span>
+        <span id="upgradeMaxedLabel" class="hidden">🏆 Max Level!</span>
       </button>
 
       <div id="milestoneSection">
@@ -1098,6 +1099,8 @@
   const upgradeBtn = document.getElementById('upgradeBtn');
   const upgradeDeltaEl = document.getElementById('upgradeDeltaEl');
   const upgradeCostEl = document.getElementById('upgradeCostEl');
+  const upgradeBtnLabel = document.getElementById('upgradeBtnLabel');
+  const upgradeMaxedLabel = document.getElementById('upgradeMaxedLabel');
 
   const savesToggleBtn = document.getElementById('savesToggleBtn');
   const savesOverlay = document.getElementById('savesOverlay');
@@ -1169,9 +1172,10 @@
   const STATION_DEFS = {
     lemonade: {
       id: 'lemonade', name: 'Lemonade Maker', icon: '🍋',
-      basePrice: 3, baseUpgradeCost: 6, costGrowth: 1.375,
+      basePrice: 3, baseUpgradeCost: 6, costGrowth: 1.3,
       priceStepBase: 2, priceStepGrowth: 1.4,
       baseMakingMs: 5000,
+      maxLevel: 25,
       milestones: [
         { level: 10, gems: 1, type: 'multiplier', multiplier: 2 },
         { level: 15, gems: 1, type: 'extension' },
@@ -1179,20 +1183,27 @@
       ],
       liquidColor: '#ffd23f', liquidColorLight: '#ffe27a',
       lidColor: '#ffd23f', lidEdge: '#f2a900', segmentedLid: true,
+      machineStyle: 'dispenser',
       pos: { x: 210, y: 380, w: 62, h: 82 }
     },
     hotdog: {
       id: 'hotdog', name: 'Hotdog Maker', icon: '🌭',
-      basePrice: 6, baseUpgradeCost: 60, costGrowth: 1.45,
-      priceStepBase: 3, priceStepGrowth: 1.4,
-      baseMakingMs: 6000,
+      basePrice: 750, baseUpgradeCost: 500, costGrowth: 1.24,
+      priceStepBase: 500, priceStepGrowth: 350,
+      baseMakingMs: 10000,
       unlockCost: 5000,
+      maxLevel: 50,
       milestones: [
         { level: 10, gems: 1, type: 'multiplier', multiplier: 2 },
-        { level: 20, gems: 1, type: 'multiplier', multiplier: 2 }
+        { level: 20, gems: 1, type: 'extension' },
+        { level: 35, gems: 1, type: 'multiplier', multiplier: 2 },
+        { level: 50, gems: 1, type: 'multiplier', multiplier: 2 }
       ],
-      liquidColor: '#c96a2e', liquidColorLight: '#e08a4a',
-      lidColor: '#8a5a2b', lidEdge: '#5b3a1c', segmentedLid: false,
+      liquidColor: '#e05a4a', liquidColorLight: '#f2a900',
+      grillBody: '#e4e6e8', grillBodyEdge: '#aeb2b6',
+      grillStripe: '#e05a4a', grillStripeEdge: '#b8402f',
+      sausageRaw: '#e8a598', sausageCooked: '#8a4a2e',
+      machineStyle: 'grill',
       pos: { x: 626, y: 380, w: 62, h: 82 }
     }
   };
@@ -1349,7 +1360,12 @@
     return hasteBought ? station.def.baseMakingMs / 2 : station.def.baseMakingMs;
   }
 
+  function isMaxLevel(station){
+    return !!station.def.maxLevel && station.level >= station.def.maxLevel;
+  }
+
   function nextUpgradeCost(station){
+    if (isMaxLevel(station)) return Infinity;
     return Math.round(station.def.baseUpgradeCost * Math.pow(station.def.costGrowth, station.level - 1));
   }
   function nextPriceIncrease(station){
@@ -1364,13 +1380,21 @@
     makerPriceEl.textContent = '$' + getEffectivePrice(station);
     makerTimeEl.textContent = (getMakingDuration(station) / 1000).toFixed(1) + 's';
     makerMultiplierEl.textContent = 'x' + station.sellMultiplier;
-    upgradeDeltaEl.textContent = nextPriceIncrease(station);
-    const cost = nextUpgradeCost(station);
-    upgradeCostEl.textContent = cost;
-    if (money < cost){
+    if (isMaxLevel(station)){
+      upgradeBtnLabel.classList.add('hidden');
+      upgradeMaxedLabel.classList.remove('hidden');
       upgradeBtn.classList.add('cantAfford');
     } else {
-      upgradeBtn.classList.remove('cantAfford');
+      upgradeBtnLabel.classList.remove('hidden');
+      upgradeMaxedLabel.classList.add('hidden');
+      upgradeDeltaEl.textContent = nextPriceIncrease(station);
+      const cost = nextUpgradeCost(station);
+      upgradeCostEl.textContent = cost;
+      if (money < cost){
+        upgradeBtn.classList.add('cantAfford');
+      } else {
+        upgradeBtn.classList.remove('cantAfford');
+      }
     }
 
     const next = nextMilestone(station);
@@ -1398,6 +1422,7 @@
   function buyUpgrade(){
     const station = stations[activeStationId];
     if (!station) return;
+    if (isMaxLevel(station)) return;
     const cost = nextUpgradeCost(station);
     if (money < cost) {
       blip(180, 0.12, 'sawtooth', 0.08); // gentle "nope" buzz
@@ -1432,7 +1457,8 @@
     headColor: '#3a2b1a',
     shirtColor: '#4fb0e0',
     isOwner: true,
-    targetCustomer: null
+    targetCustomer: null,
+    targetItem: null
   };
 
   // workers[0] is always the player-named owner. A "Worker" is appended
@@ -1658,7 +1684,8 @@
       headColor: '#3a2b1a',
       shirtColor: '#e0a34f',
       isOwner: false,
-      targetCustomer: null
+      targetCustomer: null,
+      targetItem: null
     });
     playUpgradeSound();
     refreshUpgradesSidebar();
@@ -1791,6 +1818,7 @@
     owner.state = 'idle';
     owner.makingElapsed = 0;
     owner.targetCustomer = null;
+    owner.targetItem = null;
 
     floatingTexts = [];
     coinParticles = [];
@@ -1923,12 +1951,13 @@
     owner.state = 'idle';
     owner.makingElapsed = 0;
     owner.targetCustomer = null;
+    owner.targetItem = null;
     if (managementBought){
       workers.push({
         x: IDLE_SPOT2.x, y: IDLE_SPOT2.y, idleX: IDLE_SPOT2.x, idleY: IDLE_SPOT2.y,
         claimedStationId: null, claimedSlotIndex: null,
         state: 'idle', makingElapsed: 0, facing: 1, bounce: 0,
-        headColor: '#3a2b1a', shirtColor: '#e0a34f', isOwner: false, targetCustomer: null
+        headColor: '#3a2b1a', shirtColor: '#e0a34f', isOwner: false, targetCustomer: null, targetItem: null
       });
     }
 
@@ -2122,6 +2151,32 @@
     spawnTimeoutId = setTimeout(() => { spawnCustomer(); scheduleNextSpawn(); }, d);
   }
 
+  const MAX_ORDER_ITEMS = 4;
+
+  // Decides what a new customer orders. Each unlocked machine type can
+  // contribute 1 item, or 2 if its 2nd machine is built (25% chance).
+  // With 2+ unlocked types, there's also a chance the order mixes types
+  // (e.g. 1 lemonade + 1 hotdog). Total items are capped at 4.
+  function generateOrder(unlockedIds){
+    let typesToOrder;
+    if (unlockedIds.length <= 1){
+      typesToOrder = unlockedIds.slice();
+    } else {
+      const mixed = Math.random() < 0.45;
+      typesToOrder = mixed ? unlockedIds.slice() : [unlockedIds[Math.floor(Math.random() * unlockedIds.length)]];
+    }
+
+    const items = [];
+    typesToOrder.forEach(id => {
+      const station = stations[id];
+      const qty = (station.extensionBuilt && Math.random() < 0.25) ? 2 : 1;
+      for (let i = 0; i < qty; i++) items.push(id);
+    });
+
+    if (items.length > MAX_ORDER_ITEMS) items.length = MAX_ORDER_ITEMS;
+    return items.map(id => ({ productId: id, state: 'pending' }));
+  }
+
   function spawnCustomer(){
     const maxSlots = maxCustomerSlots();
     if (customers.length >= maxSlots) return;
@@ -2137,11 +2192,11 @@
     }
     if (slotIndex === -1) return;
 
-    const productId = unlockedIds[Math.floor(Math.random() * unlockedIds.length)];
+    const items = generateOrder(unlockedIds);
     const slot = CUSTOMER_SPOTS[slotIndex];
     customers.push({
       slotIndex,
-      productId,
+      items,
       x: slot.spot.x + 40,
       y: slot.spot.y - 30,
       tx: slot.spot.x,
@@ -2152,8 +2207,7 @@
       shirt: SHIRT_COLORS[Math.floor(Math.random() * SHIRT_COLORS.length)],
       alpha: 0,
       happy: 0,
-      leaving: false,
-      beingServed: false
+      leaving: false
     });
   }
 
@@ -2193,7 +2247,7 @@
     spawnFloatingText(p.x + p.w / 2, p.y - 20, 'New Machine!');
     if (makerPanelOpen && activeStationId === stationId) refreshMakerPanel();
     // if a worker is already waiting on this station, let it grab the freshly built slot right away
-    workers.forEach(w => { if (w.state === 'waitingForMaker' && w.targetCustomer && w.targetCustomer.productId === stationId){
+    workers.forEach(w => { if (w.state === 'waitingForMaker' && w.targetItem && w.targetItem.productId === stationId){
       const slot = claimMakerSlot(station, w);
       if (slot) w.state = 'walkToMaker';
     }});
@@ -2201,32 +2255,46 @@
 
   function tryServeNext(w){
     if (w.state !== 'idle') return;
-    const c = customers.find(c => !c.beingServed && !c.leaving && c.alpha >= 1);
-    if (c){
-      c.beingServed = true;
+    for (let i = 0; i < customers.length; i++){
+      const c = customers[i];
+      if (c.leaving || c.alpha < 1) continue;
+      const item = c.items.find(it => it.state === 'pending');
+      if (!item) continue;
+      item.state = 'claimed';
       w.targetCustomer = c;
-      const station = stations[c.productId];
+      w.targetItem = item;
+      const station = stations[item.productId];
       const slot = claimMakerSlot(station, w);
       w.state = slot ? 'walkToMaker' : 'waitingForMaker';
+      return;
     }
   }
 
   function deliverOrder(w){
     const c = w.targetCustomer;
-    if (c){
-      const station = stations[c.productId];
+    const item = w.targetItem;
+    if (c && item){
+      const station = stations[item.productId];
       const earned = getEffectivePrice(station);
       money += earned;
-      c.happy = 1;
-      c.leaving = true;
+      item.state = 'delivered';
+
+      const allDelivered = c.items.every(it => it.state === 'delivered');
+      if (allDelivered){
+        c.happy = 1;
+        c.leaving = true;
+      } else {
+        c.happy = Math.min(1, c.happy + 0.4);
+      }
 
       spawnFloatingText(c.serveX, c.serveY - 50, '+$' + earned);
       spawnCoinParticle(c.serveX, c.serveY - 30);
       playCoinSound();
-      if (makerPanelOpen && activeStationId === c.productId) refreshMakerPanel();
+      if (makerPanelOpen && activeStationId === item.productId) refreshMakerPanel();
       if (upgradesSidebarOpen) refreshUpgradesSidebar();
     }
     w.targetCustomer = null;
+    w.targetItem = null;
     w.claimedStationId = null;
     w.state = 'walkBack';
   }
@@ -2269,7 +2337,7 @@
   function updateWorker(w, dt, now){
     switch (w.state){
       case 'waitingForMaker':
-        { const station = stations[w.targetCustomer ? w.targetCustomer.productId : null];
+        { const station = stations[w.targetItem ? w.targetItem.productId : null];
           if (station){
             const slot = claimMakerSlot(station, w);
             if (slot) w.state = 'walkToMaker';
@@ -2459,6 +2527,14 @@
   // which worker, if any) this physical machine corresponds to.
   // showBadge controls whether the upgrade-available notification is
   // drawn here (only the primary machine shows it per station).
+  function lerpColor(c1, c2, t){
+    const p1 = parseInt(c1.slice(1), 16), p2 = parseInt(c2.slice(1), 16);
+    const r1 = (p1 >> 16) & 255, g1 = (p1 >> 8) & 255, b1 = p1 & 255;
+    const r2 = (p2 >> 16) & 255, g2 = (p2 >> 8) & 255, b2 = p2 & 255;
+    const r = Math.round(r1 + (r2 - r1) * t), g = Math.round(g1 + (g2 - g1) * t), b = Math.round(b1 + (b2 - b1) * t);
+    return `rgb(${r},${g},${b})`;
+  }
+
   function drawMachine(mx, my, mw, mh, station, slotIndex, showBadge){
     const t = currentTheme();
     const def = station.def;
@@ -2483,6 +2559,45 @@
     // countertop
     roundRect(mx - 6, my + mh - standH - 6, mw + 12, 8, 3, '#fff8e7', '#e0c88f', 1.5);
 
+    const makingWorker = workers.find(w => w.state === 'making' && w.claimedStationId === def.id && w.claimedSlotIndex === slotIndex);
+    const pouringWorker = workers.find(w => (w.state === 'walkToCustomer' || w.state === 'walkBack') && w.claimedStationId === def.id && w.claimedSlotIndex === slotIndex);
+    const progressPct = makingWorker
+      ? Math.min(1, makingWorker.makingElapsed / getMakingDuration(station))
+      : (pouringWorker ? 1 : 0.15);
+
+    if (def.machineStyle === 'grill'){
+      drawGrillBody(tankX, tankY, tankW, tankH, mw, station, slotIndex, def, progressPct);
+    } else {
+      drawDispenserBody(tankX, tankY, tankW, tankH, mw, station, slotIndex, def, progressPct);
+    }
+
+    // small sign on the cart + level badge
+    roundRect(mx - 3, my + mh - standH + 3, mw + 6, 12, 3, t.sign, t.signEdge, 1.2);
+    ctx.font = '700 8px "Baloo 2", sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('LVL ' + station.level, mx + mw / 2, my + mh - standH + 9);
+
+    // progress bar while making
+    if (makingWorker){
+      const barW = mw + 16, barX = mx - 8, barY = my + mh + 12;
+      roundRect(barX, barY, barW, 7, 3.5, '#00000022');
+      roundRect(barX, barY, barW * progressPct, 7, 3.5, def.liquidColor);
+    }
+
+    // little "upgrade available" badge, angled, top-right of the machine
+    if (showBadge && !(makerPanelOpen && activeStationId === def.id) && money >= nextUpgradeCost(station)){
+      const pulse = 1 + Math.sin(performance.now() / 220) * 0.08;
+      drawUpgradeBadge(mx + mw + 4, tankY - 6, pulse);
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // Lemonade Maker body: a glass dispenser tank that fills with liquid
+  // while a cup is being made, topped with a lid and a tap/spout.
+  // ---------------------------------------------------------------
+  function drawDispenserBody(tankX, tankY, tankW, tankH, mw, station, slotIndex, def, fillPct){
     // glass dispenser tank
     roundRect(tankX, tankY, tankW, tankH, 8, 'rgba(255,255,255,0.55)', '#d8dade', 1.5);
 
@@ -2490,11 +2605,6 @@
     roundRect(tankX + 2, tankY + 2, tankW - 4, tankH - 4, 6);
     ctx.clip();
 
-    const makingWorker = workers.find(w => w.state === 'making' && w.claimedStationId === def.id && w.claimedSlotIndex === slotIndex);
-    const pouringWorker = workers.find(w => (w.state === 'walkToCustomer' || w.state === 'walkBack') && w.claimedStationId === def.id && w.claimedSlotIndex === slotIndex);
-    const fillPct = makingWorker
-      ? Math.min(1, makingWorker.makingElapsed / getMakingDuration(station))
-      : (pouringWorker ? 1 : 0.15);
     const liquidTop = tankY + tankH * (1 - fillPct);
 
     ctx.fillStyle = def.liquidColor;
@@ -2561,29 +2671,106 @@
         ctx.fill();
       }
     }
+  }
 
-    // small sign on the cart + level badge
-    roundRect(mx - 3, my + mh - standH + 3, mw + 6, 12, 3, t.sign, t.signEdge, 1.2);
-    ctx.font = '700 8px "Baloo 2", sans-serif';
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('LVL ' + station.level, mx + mw / 2, my + mh - standH + 9);
+  // ---------------------------------------------------------------
+  // Hotdog Maker body: a countertop roller grill — metal housing with
+  // a red stripe, a dark glass window showing sausages turning on
+  // rollers (cooking from pink to browned as an order progresses), a
+  // glowing heat lamp on top, and steam puffs while actively cooking.
+  // ---------------------------------------------------------------
+  function drawGrillBody(tankX, tankY, tankW, tankH, mw, station, slotIndex, def, cookPct){
+    // metal housing
+    roundRect(tankX, tankY, tankW, tankH, 8, def.grillBody, def.grillBodyEdge, 1.5);
 
-    // progress bar while making
-    if (makingWorker){
-      const pct = Math.min(1, makingWorker.makingElapsed / getMakingDuration(station));
-      const barW = mw + 16, barX = mx - 8, barY = my + mh + 12;
-      roundRect(barX, barY, barW, 7, 3.5, '#00000022');
-      roundRect(barX, barY, barW * pct, 7, 3.5, def.liquidColor);
+    // red accent stripe along the top edge
+    roundRect(tankX, tankY, tankW, tankH * 0.16, 6, def.grillStripe, def.grillStripeEdge, 1.2);
+
+    // dark glass viewing window with rollers + sausages
+    const winX = tankX + tankW * 0.09, winY = tankY + tankH * 0.28, winW = tankW * 0.82, winH = tankH * 0.58;
+    ctx.save();
+    roundRect(winX, winY, winW, winH, 5);
+    ctx.clip();
+    ctx.fillStyle = '#3a2b1a';
+    ctx.fillRect(winX - 2, winY - 2, winW + 4, winH + 4);
+
+    const rollerCount = 3;
+    const rollerGap = winH / rollerCount;
+    const roll = (performance.now() / 260) % (Math.PI * 2);
+    for (let i = 0; i < rollerCount; i++){
+      const ry = winY + rollerGap * (i + 0.5);
+
+      // roller bar
+      ctx.strokeStyle = '#7d8288';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(winX + 1, ry);
+      ctx.lineTo(winX + winW - 1, ry);
+      ctx.stroke();
+
+      // sausage sitting on the roller; cooks toward brown as the order progresses
+      const doneness = Math.max(0, Math.min(1, cookPct * 1.15 - i * 0.12));
+      const sausageColor = lerpColor(def.sausageRaw, def.sausageCooked, doneness);
+      const wobble = Math.sin(roll + i * 1.7) * 1.1;
+      const susX = winX + winW / 2, susY = ry - 3 + wobble;
+      const susW = winW * 0.7, susH = 5.5;
+      roundRect(susX - susW / 2, susY - susH / 2, susW, susH, susH / 2, sausageColor, 'rgba(0,0,0,0.25)', 1);
+      // faint highlight roll-line to sell the rotation
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(susX - susW / 2 + 3, susY - susH / 2 + 1.5);
+      ctx.lineTo(susX + susW / 2 - 3, susY - susH / 2 + 1.5);
+      ctx.stroke();
     }
+    ctx.restore();
+    roundRect(winX, winY, winW, winH, 5, null, '#6b6f73', 1.2);
+    // glass glare
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.beginPath();
+    ctx.ellipse(winX + winW * 0.24, winY + winH * 0.3, 2.4, winH * 0.32, -0.2, 0, Math.PI * 2);
+    ctx.fill();
 
-    // little "upgrade available" badge, angled, top-right of the machine
-    if (showBadge && !(makerPanelOpen && activeStationId === def.id) && money >= nextUpgradeCost(station)){
-      const pulse = 1 + Math.sin(performance.now() / 220) * 0.08;
-      drawUpgradeBadge(mx + mw + 4, tankY - 6, pulse);
+    // control knob on the housing
+    ctx.beginPath();
+    ctx.arc(tankX + tankW * 0.15, tankY + tankH * 0.86, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8cdd2';
+    ctx.fill();
+    ctx.strokeStyle = '#8a8f94';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // heat lamp on top, glowing while cooking
+    const lampCx = tankX + tankW / 2, lampCy = tankY - 4;
+    const lampR = mw * 0.11;
+    const glow = 0.55 + Math.sin(performance.now() / 220) * 0.15 + (station.spoutDrip[slotIndex] ? 0.2 : 0);
+    ctx.beginPath();
+    ctx.arc(lampCx, lampCy, lampR, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,150,60,${Math.min(1, glow)})`;
+    ctx.fill();
+    ctx.strokeStyle = '#c8622f';
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(lampCx - lampR * 0.3, lampCy - lampR * 0.3, lampR * 0.35, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fill();
+
+    // steam puffs while actively cooking, and a little "order's up!" wisp on delivery
+    const drip = station.spoutDrip[slotIndex] || 0;
+    if (drip > 0){
+      const puffX = tankX + tankW / 2;
+      for (let i = 0; i < 3; i++){
+        const dy = (1 - drip) * (14 + i * 7);
+        const sway = Math.sin(performance.now() / 140 + i) * 3;
+        ctx.beginPath();
+        ctx.arc(puffX + sway, tankY - 10 - dy, 3 - i * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${drip * 0.6})`;
+        ctx.fill();
+      }
     }
   }
+
 
   function drawMaker(){
     stationOrder.forEach(id => {
@@ -2787,11 +2974,16 @@
     }
   }
 
-  function drawSpeechBubble(x, y, alpha, icon){
+  // groups is an array of { icon, qty }, one entry per product type still
+  // outstanding on the order (not yet delivered).
+  function drawSpeechBubble(x, y, alpha, groups){
+    if (!groups || groups.length === 0) return;
+    const n = groups.length;
+    const w = 30 + n * 26, h = 40;
+    const bx = x - w / 2, by = y - h - 18;
+
     ctx.save();
     ctx.globalAlpha = alpha;
-    const w = 46, h = 40;
-    const bx = x - w / 2, by = y - h - 18;
     roundRect(bx, by, w, h, 12, '#ffffff', '#00000022', 1.5);
     ctx.beginPath();
     ctx.moveTo(x - 7, by + h);
@@ -2800,11 +2992,58 @@
     ctx.closePath();
     ctx.fillStyle = '#ffffff';
     ctx.fill();
-    ctx.font = '24px "Nunito", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(icon || '🍋', x, by + h / 2);
     ctx.restore();
+
+    const spacing = w / (n + 1);
+    groups.forEach((g, i) => {
+      const gx = bx + spacing * (i + 1);
+      const gy = by + h / 2;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.font = '20px "Nunito", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(g.icon || '🍋', gx, gy);
+      ctx.restore();
+
+      if (g.qty > 1){
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        const bcx = gx + 11, bcy = gy - 13;
+        ctx.beginPath();
+        ctx.arc(bcx, bcy, 9, 0, Math.PI * 2);
+        ctx.fillStyle = '#ff6b5b';
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+        ctx.font = '800 10px "Baloo 2", sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('x' + g.qty, bcx, bcy + 0.5);
+        ctx.restore();
+      }
+    });
+  }
+
+  // Groups a customer's not-yet-delivered items by product type, e.g.
+  // an order of [lemonade, lemonade, hotdog] -> [{icon:'🍋',qty:2}, {icon:'🌭',qty:1}]
+  function orderGroups(c){
+    const byType = [];
+    const index = {};
+    c.items.forEach(it => {
+      if (it.state === 'delivered') return;
+      const st = stations[it.productId];
+      const icon = st ? st.def.icon : '🍋';
+      if (index[it.productId] === undefined){
+        index[it.productId] = byType.length;
+        byType.push({ icon, qty: 0 });
+      }
+      byType[index[it.productId]].qty += 1;
+    });
+    return byType;
   }
 
   function drawFloatingTexts(){
@@ -2852,8 +3091,7 @@
       const bob = c.leaving ? 0 : Math.sin(now / 300) * 1.2;
       drawPerson(c.x, c.y, c.hair, c.shirt, 'Customer', -1, bob, c.happy);
       if (!c.leaving){
-        const st = stations[c.productId];
-        drawSpeechBubble(c.x, c.y - 30, c.alpha, st ? st.def.icon : '🍋');
+        drawSpeechBubble(c.x, c.y - 30, c.alpha, orderGroups(c));
       }
     });
 
