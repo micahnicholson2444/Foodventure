@@ -151,7 +151,7 @@
   }
 
   /* ---------- Name overlay ---------- */
-  #nameOverlay{
+  .screenOverlay{
     position:absolute;
     inset:0;
     background:rgba(58,43,26,0.55);
@@ -199,7 +199,7 @@
     text-align:center;
   }
 
-  #startBtn{
+  #startBtn, #collectOfflineBtn{
     width:100%;
     padding:12px;
     font-family:'Baloo 2', sans-serif;
@@ -213,7 +213,7 @@
     box-shadow:0 4px 0 #c8483b;
     transition:transform 0.05s ease;
   }
-  #startBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #c8483b; }
+  #startBtn:active, #collectOfflineBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #c8483b; }
 
   .hidden{ display:none !important; }
 
@@ -864,12 +864,20 @@
 
   <div id="footNote">Click the lemonade maker to view stats and upgrade your price!</div>
 
-  <div id="nameOverlay">
+  <div id="nameOverlay" class="screenOverlay">
     <div class="nameBox">
       <h1>🍋 Lemonade Venture</h1>
       <p>What should we call the owner of this stall?</p>
       <input id="nameInput" type="text" maxlength="14" placeholder="Enter your name" autocomplete="off">
       <button id="startBtn">Open the stall!</button>
+    </div>
+  </div>
+
+  <div id="welcomeBackOverlay" class="screenOverlay hidden">
+    <div class="nameBox">
+      <h1>🍋 Welcome back!</h1>
+      <p id="welcomeBackText">While you were away your stall kept running.</p>
+      <button id="collectOfflineBtn">Collect</button>
     </div>
   </div>
 
@@ -1058,10 +1066,6 @@
     </div>
 
     <div id="classicUpgradesSection" class="hidden">
-      <div class="upgradesHeader" style="margin:14px 0 8px;">
-        <h2 style="font-size:16px;">Classic Stand</h2>
-      </div>
-
       <div class="upgradeCard">
         <div class="upgradeCardTop">
           <div class="upgradeIcon">🧽</div>
@@ -1150,6 +1154,9 @@
   const nameOverlay = document.getElementById('nameOverlay');
   const nameInput = document.getElementById('nameInput');
   const startBtn = document.getElementById('startBtn');
+  const welcomeBackOverlay = document.getElementById('welcomeBackOverlay');
+  const welcomeBackText = document.getElementById('welcomeBackText');
+  const collectOfflineBtn = document.getElementById('collectOfflineBtn');
 
   const stationBuyOverlay = document.getElementById('stationBuyOverlay');
   const stationBuyClose = document.getElementById('stationBuyClose');
@@ -1640,7 +1647,7 @@
 
   startBtn.addEventListener('click', beginGame);
   nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') beginGame(); });
-  window.addEventListener('load', () => nameInput.focus());
+  window.addEventListener('load', tryAutoLoadOnStart);
 
   // ---------------------------------------------------------------
   // Maker upgrade panel open/close
@@ -1695,6 +1702,7 @@
     const p = station.def.pos;
     spawnFloatingText(p.x + p.w / 2, p.y - 20, 'New Machine!');
     closeStationBuyPanel();
+    writeAutoSave();
   }
 
   stationBuyClose.addEventListener('click', closeStationBuyPanel);
@@ -1792,6 +1800,7 @@
     advertisingBought = true;
     playUpgradeSound();
     refreshUpgradesSidebar();
+    writeAutoSave();
   }
 
   function buyManagement(){
@@ -1801,6 +1810,7 @@
     workers.push(makeWorker(IDLE_SPOT2, '#e0a34f'));
     playUpgradeSound();
     refreshUpgradesSidebar();
+    writeAutoSave();
   }
 
   function buyHaste(){
@@ -1810,6 +1820,7 @@
     playUpgradeSound();
     refreshUpgradesSidebar();
     if (makerPanelOpen) refreshMakerPanel();
+    writeAutoSave();
   }
 
   function buyReviews(){
@@ -1818,6 +1829,7 @@
     reviewsBought = true;
     playUpgradeSound();
     refreshUpgradesSidebar();
+    writeAutoSave();
   }
 
   function buyProfits(){
@@ -1828,6 +1840,7 @@
     playUpgradeSound();
     refreshUpgradesSidebar();
     if (makerPanelOpen) refreshMakerPanel();
+    writeAutoSave();
   }
 
   function buyCleanPumps(){
@@ -1837,6 +1850,7 @@
     playUpgradeSound();
     refreshUpgradesSidebar();
     if (makerPanelOpen) refreshMakerPanel();
+    writeAutoSave();
   }
 
   function buyNewspapers(){
@@ -1845,6 +1859,7 @@
     newspapersBought = true;
     playUpgradeSound();
     refreshUpgradesSidebar();
+    writeAutoSave();
   }
 
   function buyHardWork(){
@@ -1854,6 +1869,7 @@
     workers.push(makeWorker(IDLE_SPOT3, '#7a63e0'));
     playUpgradeSound();
     refreshUpgradesSidebar();
+    writeAutoSave();
   }
 
   function buyKetchup(){
@@ -1864,6 +1880,7 @@
     playUpgradeSound();
     refreshUpgradesSidebar();
     if (makerPanelOpen) refreshMakerPanel();
+    writeAutoSave();
   }
 
   function buyZestyLemons(){
@@ -1874,6 +1891,7 @@
     playUpgradeSound();
     refreshUpgradesSidebar();
     if (makerPanelOpen) refreshMakerPanel();
+    writeAutoSave();
   }
 
   advertisingBuyBtn.addEventListener('click', buyAdvertising);
@@ -2016,6 +2034,7 @@
     spawnFloatingText(p.x + p.w / 2, p.y - 64, '+3 💎');
 
     refreshRenovateBadge();
+    writeAutoSave();
   }
 
   renovateToggleBtn.addEventListener('click', openRenovatePanel);
@@ -2063,6 +2082,20 @@
     const raw = await storageGetRaw(slotKey(n));
     if (!raw) return null;
     try { return JSON.parse(raw); } catch (e) { return null; }
+  }
+
+  // Autosave lives in its own key, separate from the two manual save
+  // slots, and is what auto-load and offline earnings are based on.
+  const AUTO_SAVE_KEY = 'lemonadeVentureSave_auto';
+  async function readAutoSave(){
+    const raw = await storageGetRaw(AUTO_SAVE_KEY);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  }
+  async function writeAutoSave(){
+    if (!started) return;
+    try { await storageSetRaw(AUTO_SAVE_KEY, JSON.stringify(captureGameState())); }
+    catch (e) { /* best-effort */ }
   }
 
   function captureGameState(){
@@ -2158,6 +2191,99 @@
     refreshUpgradesBadge();
     refreshRenovateBadge();
   }
+
+  // ---------------------------------------------------------------
+  // Offline earnings
+  // ---------------------------------------------------------------
+  // Coarse coins-per-second estimate based on the current setup: each
+  // unlocked station's price divided by how long a batch takes to make
+  // plus a little overhead for a worker to walk it over and serve it,
+  // scaled down by how many workers are actually around to staff it.
+  const OFFLINE_SERVE_OVERHEAD_SEC = 2.5;
+  const OFFLINE_EFFICIENCY = 0.5;     // pay out half of the theoretical rate
+  const OFFLINE_MAX_SECONDS = 8 * 3600; // cap payout at 8 hours away
+  const OFFLINE_MIN_SECONDS = 60;       // don't bother for a quick refresh
+
+  function estimateEarnRatePerSecond(){
+    let rate = 0;
+    let totalSlots = 0;
+    stationOrder.forEach(id => {
+      const s = stations[id];
+      if (!s.unlocked) return;
+      const slots = 1 + (s.extensionBuilt ? 1 : 0);
+      const cycleSeconds = getMakingDuration(s) / 1000 + OFFLINE_SERVE_OVERHEAD_SEC;
+      rate += (getEffectivePrice(s) * slots) / cycleSeconds;
+      totalSlots += slots;
+    });
+    const workerCount = 1 + (managementBought ? 1 : 0) + (hardWorkBought ? 1 : 0);
+    const utilization = totalSlots > 0 ? Math.min(1, workerCount / totalSlots) : 0;
+    return rate * utilization;
+  }
+
+  function computeOfflineEarnings(state){
+    const now = Date.now();
+    const savedAt = state.savedAt || now;
+    let elapsedSeconds = Math.floor((now - savedAt) / 1000);
+    if (elapsedSeconds < OFFLINE_MIN_SECONDS) return null;
+    elapsedSeconds = Math.min(elapsedSeconds, OFFLINE_MAX_SECONDS);
+    const earnings = Math.round(estimateEarnRatePerSecond() * elapsedSeconds * OFFLINE_EFFICIENCY);
+    if (earnings <= 0) return null;
+    return { elapsedSeconds, earnings };
+  }
+
+  function formatDuration(seconds){
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    if (h > 0) return h + 'h ' + m + 'm';
+    if (m > 0) return m + 'm';
+    return 'a moment';
+  }
+
+  function showWelcomeBackOverlay(earnings, elapsedSeconds){
+    welcomeBackText.textContent = 'You were away for ' + formatDuration(elapsedSeconds) +
+      ' and your stall earned $' + earnings.toLocaleString() + ' while you were gone!';
+    welcomeBackOverlay.classList.remove('hidden');
+  }
+  collectOfflineBtn.addEventListener('click', () => {
+    welcomeBackOverlay.classList.add('hidden');
+  });
+
+  // ---------------------------------------------------------------
+  // Auto-load: on page open, resume straight from the autosave (if any)
+  // instead of asking for a name again.
+  // ---------------------------------------------------------------
+  async function tryAutoLoadOnStart(){
+    const state = await readAutoSave();
+    if (!state){
+      nameOverlay.classList.remove('hidden');
+      nameInput.focus();
+      return;
+    }
+    applyGameState(state);
+    nameOverlay.classList.add('hidden');
+    started = true;
+    lastTime = performance.now();
+    getAudio();
+    requestAnimationFrame(loop);
+
+    const offline = computeOfflineEarnings(state);
+    if (offline){
+      money += offline.earnings;
+      displayedMoney = money;
+      moneyCountEl.textContent = Math.round(money);
+      showWelcomeBackOverlay(offline.earnings, offline.elapsedSeconds);
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // Autosave: a periodic heartbeat plus saves on tab hide/close and
+  // right after any one-off purchase (renovating, buying a station,
+  // buying an upgrade). Station level-ups rely on the heartbeat since
+  // that button can be clicked rapidly.
+  // ---------------------------------------------------------------
+  setInterval(writeAutoSave, 20000);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) writeAutoSave(); });
+  window.addEventListener('pagehide', writeAutoSave);
 
   function formatSlotDetail(state){
     const buildingName = (BUILDINGS[state.buildingIndex] && BUILDINGS[state.buildingIndex].name) || 'Lemonade Stand';
