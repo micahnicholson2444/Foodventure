@@ -1662,6 +1662,31 @@
       sausageRaw: '#e8a598', sausageCooked: '#8a4a2e',
       machineStyle: 'grill',
       pos: { x: 626, y: 380, w: 62, h: 82 }
+    },
+    fries: {
+      // Priced at 25x the Hotdog Maker's scale (unlockCost 125,000 vs
+      // 5,000), so every dependent price is scaled by the same 25x
+      // factor to keep the same feel/pacing as the Hotdog Maker.
+      id: 'fries', name: 'Fries Maker', icon: '🍟',
+      basePrice: 18750, baseUpgradeCost: 12500, costGrowth: 1.24,
+      priceStepBase: 625, priceStepGrowth: 375,
+      baseMakingMs: 10000,
+      unlockCost: 125000,
+      maxLevel: 50,
+      milestones: [
+        { level: 10, gems: 1, type: 'multiplier', multiplier: 2 },
+        { level: 20, gems: 1, type: 'extension' },
+        { level: 35, gems: 1, type: 'multiplier', multiplier: 2 },
+        { level: 50, gems: 1, type: 'multiplier', multiplier: 2 }
+      ],
+      liquidColor: '#f2b93a', liquidColorLight: '#ffe27a',
+      fryerBody: '#e4e6e8', fryerBodyEdge: '#aeb2b6',
+      fryerStripe: '#f2b93a', fryerStripeEdge: '#c98f18',
+      oilColor: '#d99a1f', oilColorLight: '#f2c352',
+      friesRaw: '#f5e6b8', friesCooked: '#d68a2e',
+      basketColor: '#7d8288', basketEdge: '#5a5e62',
+      machineStyle: 'fryer',
+      pos: { x: 418, y: 380, w: 62, h: 82 }
     }
   };
 
@@ -1751,7 +1776,8 @@
   // $7500 to renovate into the next building tier. Progress resets but
   // gems (and the new building's look) persist.
   // ---------------------------------------------------------------
-  const RENOVATE_COST = 25000;
+  // Cost to renovate OUT of each building tier (index = current buildingIndex).
+  const RENOVATE_COSTS = [25000, 250000];
   const BUILDINGS = [
     {
       name: 'Lemonade Stand',
@@ -1774,6 +1800,20 @@
       cart: '#7a5230', cartEdge: '#4a3018',
       sign: '#3d8bf0', signEdge: '#2a63b0',
       umbrellaA: '#f2a94f', umbrellaB: '#fff4df'
+    },
+    {
+      // A proper storefront: warm golden-hour sky, a paved courtyard
+      // instead of grass, a tiled plot floor, and a sleek dark-wood +
+      // brass counter to sell the "real shop" upgrade from a stand.
+      name: 'Shop',
+      stationIds: ['lemonade', 'hotdog', 'fries'],
+      skyTop: '#8fc8e8', skyBottom: '#f7e2b8',
+      grass: '#b7bcc2', grassDark: '#9ba0a6',
+      plot: '#d8cdb8', plotEdge: '#a98f5c',
+      bench: '#3e2a1c', benchEdge: '#241609',
+      cart: '#2e2016', cartEdge: '#181009',
+      sign: '#1f8a4c', signEdge: '#145a32',
+      umbrellaA: '#c8a24a', umbrellaB: '#fff8e2'
     }
   ];
   let buildingIndex = 0;
@@ -2473,11 +2513,24 @@
   // ---------------------------------------------------------------
   // Renovation panel open/close + logic
   // ---------------------------------------------------------------
+  // What must be maxed out (and the basic + tier-2 upgrade sets required)
+  // to renovate OUT of each building tier, keyed by buildingIndex.
+  const RENOVATE_LEVEL_REQS = [
+    { stationId: 'lemonade', level: 25, needsTier2Upgrades: false },
+    { stationId: 'hotdog',   level: 50, needsTier2Upgrades: true }
+  ];
+
   function renovationRequirements(){
+    const cost = RENOVATE_COSTS[buildingIndex];
+    const levelReq = RENOVATE_LEVEL_REQS[buildingIndex];
+    let upgradesMet = advertisingBought && managementBought && hasteBought && reviewsBought && profitsBought;
+    if (levelReq.needsTier2Upgrades){
+      upgradesMet = upgradesMet && cleanPumpsBought && newspapersBought && hardWorkBought && ketchupBought && zestyLemonsBought;
+    }
     return [
-      { row: reqMoneyRow, met: money >= RENOVATE_COST },
-      { row: reqUpgradesRow, met: advertisingBought && managementBought && hasteBought && reviewsBought && profitsBought },
-      { row: reqLevelRow, met: stations.lemonade.level >= 25 }
+      { row: reqMoneyRow, met: money >= cost },
+      { row: reqUpgradesRow, met: upgradesMet },
+      { row: reqLevelRow, met: stations[levelReq.stationId].level >= levelReq.level }
     ];
   }
 
@@ -2495,8 +2548,12 @@
     if (hasNextBuilding()){
       buildingNextEl.textContent = BUILDINGS[buildingIndex + 1].name;
 
+      const cost = RENOVATE_COSTS[buildingIndex];
+      const levelReq = RENOVATE_LEVEL_REQS[buildingIndex];
       reqMoneyRow.querySelector('.reqText').textContent =
-        'Save $' + Math.min(money, RENOVATE_COST).toLocaleString() + ' / $' + RENOVATE_COST.toLocaleString();
+        'Save $' + Math.min(money, cost).toLocaleString() + ' / $' + cost.toLocaleString();
+      reqLevelRow.querySelector('.reqText').textContent =
+        stations[levelReq.stationId].def.name + ' at Lvl ' + levelReq.level;
 
       const reqs = renovationRequirements();
       reqs.forEach(r => r.row.classList.toggle('met', r.met));
@@ -3950,6 +4007,8 @@
 
     if (def.machineStyle === 'grill'){
       drawGrillBody(tankX, tankY, tankW, tankH, mw, station, slotIndex, def, progressPct);
+    } else if (def.machineStyle === 'fryer'){
+      drawFryerBody(tankX, tankY, tankW, tankH, mw, station, slotIndex, def, progressPct);
     } else {
       drawDispenserBody(tankX, tankY, tankW, tankH, mw, station, slotIndex, def, progressPct);
     }
@@ -4140,6 +4199,121 @@
     ctx.fill();
 
     // steam puffs while actively cooking, and a little "order's up!" wisp on delivery
+    const drip = station.spoutDrip[slotIndex] || 0;
+    if (drip > 0){
+      const puffX = tankX + tankW / 2;
+      for (let i = 0; i < 3; i++){
+        const dy = (1 - drip) * (14 + i * 7);
+        const sway = Math.sin(performance.now() / 140 + i) * 3;
+        ctx.beginPath();
+        ctx.arc(puffX + sway, tankY - 10 - dy, 3 - i * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${drip * 0.6})`;
+        ctx.fill();
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // Fries Maker body: a countertop deep fryer — metal housing with a
+  // golden accent stripe, a bubbling oil vat behind a viewing window,
+  // and a wire basket of fries that lower in raw and are hoisted back
+  // out golden-brown as an order finishes, with rising steam/bubbles.
+  // ---------------------------------------------------------------
+  function drawFryerBody(tankX, tankY, tankW, tankH, mw, station, slotIndex, def, cookPct){
+    // metal housing
+    roundRect(tankX, tankY, tankW, tankH, 8, def.fryerBody, def.fryerBodyEdge, 1.5);
+
+    // golden accent stripe along the top edge
+    roundRect(tankX, tankY, tankW, tankH * 0.16, 6, def.fryerStripe, def.fryerStripeEdge, 1.2);
+
+    // oil vat viewing window
+    const winX = tankX + tankW * 0.09, winY = tankY + tankH * 0.28, winW = tankW * 0.82, winH = tankH * 0.58;
+    ctx.save();
+    roundRect(winX, winY, winW, winH, 5);
+    ctx.clip();
+    ctx.fillStyle = def.oilColor;
+    ctx.fillRect(winX - 2, winY - 2, winW + 4, winH + 4);
+
+    // rising oil bubbles
+    const bubbleT = performance.now() / 260;
+    for (let i = 0; i < 5; i++){
+      const bx = winX + winW * (0.15 + (i * 0.18));
+      const by = winY + winH - ((bubbleT * 14 + i * 9) % winH);
+      ctx.beginPath();
+      ctx.arc(bx, by, 1.1 + (i % 2) * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.fill();
+    }
+
+    // wire basket of fries, dunked in the oil; fries cook from pale to
+    // golden-brown as the order progresses, and the basket bobs gently
+    const basketBob = Math.sin(performance.now() / 300) * 1.4;
+    const basketCx = winX + winW / 2, basketCy = winY + winH * 0.58 + basketBob;
+    const basketW = winW * 0.72, basketH = winH * 0.42;
+
+    // fries poking up out of the basket
+    const doneness = Math.max(0, Math.min(1, cookPct * 1.15));
+    const friesColor = lerpColor(def.friesRaw, def.friesCooked, doneness);
+    const friesCount = 6;
+    for (let i = 0; i < friesCount; i++){
+      const fx = basketCx - basketW / 2 + (basketW / (friesCount - 1)) * i;
+      const fLen = basketH * (0.55 + ((i * 37) % 5) / 10);
+      ctx.fillStyle = friesColor;
+      ctx.fillRect(fx - 1.3, basketCy - fLen, 2.6, fLen);
+    }
+
+    // basket wire frame (drawn over the fries so it reads as "in" the basket)
+    ctx.strokeStyle = def.basketEdge;
+    ctx.lineWidth = 1.3;
+    roundRect(basketCx - basketW / 2, basketCy - basketH * 0.3, basketW, basketH * 0.55, 3, 'rgba(125,130,136,0.35)', def.basketEdge, 1.3);
+    ctx.beginPath();
+    for (let gx = -basketW / 2; gx <= basketW / 2; gx += basketW / 4){
+      ctx.moveTo(basketCx + gx, basketCy - basketH * 0.3);
+      ctx.lineTo(basketCx + gx, basketCy + basketH * 0.25);
+    }
+    ctx.stroke();
+    // basket handle
+    ctx.beginPath();
+    ctx.moveTo(basketCx - basketW * 0.3, basketCy - basketH * 0.3);
+    ctx.lineTo(basketCx - basketW * 0.3, basketCy - basketH * 0.55);
+    ctx.lineTo(basketCx + basketW * 0.3, basketCy - basketH * 0.55);
+    ctx.lineTo(basketCx + basketW * 0.3, basketCy - basketH * 0.3);
+    ctx.stroke();
+
+    ctx.restore();
+    roundRect(winX, winY, winW, winH, 5, null, '#6b6f73', 1.2);
+    // glass glare
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.beginPath();
+    ctx.ellipse(winX + winW * 0.24, winY + winH * 0.3, 2.4, winH * 0.32, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // control knob on the housing
+    ctx.beginPath();
+    ctx.arc(tankX + tankW * 0.15, tankY + tankH * 0.86, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8cdd2';
+    ctx.fill();
+    ctx.strokeStyle = '#8a8f94';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // salt shaker "lamp" on top, glinting while cooking
+    const shakerCx = tankX + tankW / 2, shakerCy = tankY - 4;
+    const shakerR = mw * 0.11;
+    const glow = 0.55 + Math.sin(performance.now() / 220) * 0.15 + (station.spoutDrip[slotIndex] ? 0.2 : 0);
+    ctx.beginPath();
+    ctx.arc(shakerCx, shakerCy, shakerR, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(242,201,82,${Math.min(1, glow)})`;
+    ctx.fill();
+    ctx.strokeStyle = '#c98f18';
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(shakerCx - shakerR * 0.3, shakerCy - shakerR * 0.3, shakerR * 0.35, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fill();
+
+    // steam puffs while actively frying, and a little "order's up!" wisp on delivery
     const drip = station.spoutDrip[slotIndex] || 0;
     if (drip > 0){
       const puffX = tankX + tankW / 2;
