@@ -91,6 +91,50 @@
     box-shadow:0 4px 0 rgba(0,0,0,0.12);
   }
 
+  #topLeft{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+    pointer-events:auto;
+  }
+
+  #friendsToggleBtn{
+    position:relative;
+    background:var(--cream);
+    border:3px solid var(--lemon-dark);
+    border-radius:14px;
+    width:40px;
+    height:40px;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,0.12);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--ink);
+    transition:transform 0.05s ease;
+    pointer-events:auto;
+  }
+  #friendsToggleBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.12); }
+  #friendsToggleBtn svg{ fill:currentColor; }
+  #friendsBadge{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    background:#ff3b3b;
+    color:#fff;
+    border:2px solid #fff;
+    border-radius:50%;
+    width:16px;
+    height:16px;
+    font-size:10px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Baloo 2', sans-serif;
+  }
+
   #moneyDisplay{
     background:var(--cream);
     border:3px solid var(--lemon-dark);
@@ -218,7 +262,7 @@
     text-align:center;
   }
 
-  #startBtn, #collectOfflineBtn{
+  #startBtn, #collectOfflineBtn, #helperRewardCloseBtn{
     width:100%;
     padding:12px;
     font-family:'Baloo 2', sans-serif;
@@ -232,7 +276,7 @@
     box-shadow:0 4px 0 #c8483b;
     transition:transform 0.05s ease;
   }
-  #startBtn:active, #collectOfflineBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #c8483b; }
+  #startBtn:active, #collectOfflineBtn:active, #helperRewardCloseBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #c8483b; }
 
   #doubleOfflineBtn{
     width:100%;
@@ -692,6 +736,189 @@
   }
   #savesStatusEl.show{ opacity:1; }
 
+  /* ---------- Friends panel ---------- */
+  #friendsOverlay{
+    position:absolute;
+    inset:0;
+    background:rgba(58,43,26,0.5);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:18px;
+    z-index:31;
+  }
+
+  #friendsBox{ width:340px; }
+
+  .friendsTabs{
+    display:flex;
+    gap:5px;
+    margin:6px 0 14px;
+  }
+  .friendsTabBtn{
+    position:relative;
+    flex:1;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:11.5px;
+    color:var(--ink);
+    background:#f0e6c8;
+    border:2px solid #e0c88f;
+    border-radius:10px;
+    padding:8px 4px;
+    cursor:pointer;
+    opacity:0.7;
+    transition:transform 0.05s ease;
+  }
+  .friendsTabBtn:active{ transform:translateY(2px); }
+  .friendsTabBtn.active{
+    background:var(--lemon);
+    border-color:var(--lemon-dark);
+    opacity:1;
+  }
+  .friendsTabBtn #requestsBadge{
+    position:absolute;
+    top:-7px;
+    right:-6px;
+    background:#ff3b3b;
+    color:#fff;
+    border:2px solid var(--cream);
+    border-radius:50%;
+    min-width:17px;
+    height:17px;
+    padding:0 2px;
+    font-size:10px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .friendsTabPanel{ text-align:left; }
+
+  .friendsHint{
+    font-family:'Nunito', sans-serif;
+    font-size:12.5px;
+    color:var(--ink);
+    opacity:0.75;
+    margin:0 0 12px;
+    line-height:1.4;
+    text-align:center;
+  }
+
+  #helpCooldownHint{
+    background:#f0e6c8;
+    border:1px dashed #cbb27a;
+    border-radius:10px;
+    padding:7px 10px;
+    opacity:0.9;
+  }
+  #helpCooldownHint.hidden{ display:none !important; }
+
+  #friendSearchInput{
+    width:100%;
+    padding:9px 12px;
+    font-size:14px;
+    font-family:'Nunito', sans-serif;
+    border:2px solid var(--lemon-dark);
+    border-radius:10px;
+    margin-bottom:12px;
+    outline:none;
+    box-sizing:border-box;
+  }
+
+  .friendRow{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#ffffff;
+    border:2px solid #e0c88f;
+    border-radius:14px;
+    padding:9px 10px;
+    margin-bottom:9px;
+  }
+
+  .friendAvatar{
+    flex-shrink:0;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:var(--lemon);
+    border:2px solid var(--lemon-dark);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:17px;
+  }
+
+  .friendInfo{ min-width:0; flex:1; }
+
+  .friendName{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:13.5px;
+    color:var(--coral);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .friendStats{
+    font-family:'Nunito', sans-serif;
+    font-size:11px;
+    color:var(--ink);
+    opacity:0.8;
+    line-height:1.35;
+  }
+
+  .friendActionBtn{
+    flex-shrink:0;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:11.5px;
+    color:#ffffff;
+    border:none;
+    border-radius:9px;
+    padding:8px 11px;
+    cursor:pointer;
+    box-shadow:0 3px 0 rgba(0,0,0,0.2);
+    transition:transform 0.05s ease;
+    white-space:nowrap;
+  }
+  .friendActionBtn:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,0.2); }
+  .friendActionBtn.addBtn{ background:#57c48a; box-shadow:0 3px 0 #3e9868; }
+  .friendActionBtn.removeBtn{ background:#ff6b5b; box-shadow:0 3px 0 #c8483b; }
+  .friendActionBtn.selfBtn{ background:#c9ccce; box-shadow:0 3px 0 #a4a8ab; cursor:default; }
+  .friendActionBtn.helpBtn{ background:#7c4dff; box-shadow:0 3px 0 #5e35b1; }
+  .friendActionBtn.acceptBtn{ background:#57c48a; box-shadow:0 3px 0 #3e9868; }
+  .friendActionBtn.declineBtn{ background:#ff6b5b; box-shadow:0 3px 0 #c8483b; }
+  .friendActionBtn.pendingBtn, .friendActionBtn.friendBtn, .friendActionBtn:disabled{
+    background:#c9ccce; box-shadow:0 3px 0 #a4a8ab; cursor:default; opacity:0.85;
+  }
+  .friendActionBtn.friendBtn{ background:#a8e0c0; box-shadow:0 3px 0 #6bb98e; color:#2a6a45; }
+
+  .friendActionCol{
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .friendsScroll{
+    max-height:280px;
+    overflow-y:auto;
+    padding-right:2px;
+  }
+
+  #nameError{
+    font-family:'Nunito', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    color:#c8483b;
+    min-height:16px;
+    margin:-8px 0 12px;
+  }
+
   /* ---------- Upgrades button + sidebar ---------- */
   #upgradesToggleBtn{
     position:absolute;
@@ -891,7 +1118,7 @@
     #savesToggleBtn{ left:8px; bottom:8px; }
     #renovateBadge, #upgradesBadge{ width:18px; height:18px; font-size:11px; top:-6px; right:-6px; }
 
-    .makerBox, .nameBox{ width:270px; padding:20px 18px 18px; }
+    .makerBox, .nameBox, #friendsBox{ width:270px; padding:20px 18px 18px; }
     .nameBox h1{ font-size:24px; }
     #upgradesSidebar{ width:250px; padding:14px 12px; }
     .saveSlot{ padding:10px; gap:6px; }
@@ -925,7 +1152,16 @@
   <canvas id="gameCanvas" width="900" height="780"></canvas>
 
   <div id="gameUI">
-    <div id="titleBadge">🍋 Lemonade Venture</div>
+    <div id="topLeft">
+      <div id="titleBadge">🍋 Lemonade Venture</div>
+      <button id="friendsToggleBtn" title="Friends" aria-label="Friends">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <circle cx="12" cy="7.6" r="4.1"/>
+          <path d="M3.6 20.2c0-4.9 3.76-8.5 8.4-8.5s8.4 3.6 8.4 8.5c0 .7-.5 1-1 1H4.6c-.5 0-1-.3-1-1z"/>
+        </svg>
+        <span id="friendsBadge" class="hidden">!</span>
+      </button>
+    </div>
     <div id="topRight">
       <div id="moneyDisplay"><span class="coin"></span><span id="moneyCount">0</span></div>
       <div id="gemDisplay"><span class="gem"></span><span id="gemCount">0</span></div>
@@ -940,6 +1176,7 @@
       <h1>🍋 Lemonade Venture</h1>
       <p>What should we call the owner of this stall?</p>
       <input id="nameInput" type="text" maxlength="14" placeholder="Enter your name" autocomplete="off">
+      <div id="nameError"></div>
       <button id="startBtn">Open the stall!</button>
     </div>
   </div>
@@ -950,6 +1187,14 @@
       <p id="welcomeBackText">While you were away your stall kept running.</p>
       <button id="doubleOfflineBtn"><span class="gem"></span><span id="doubleOfflineBtnText">Double it for 10 💎</span></button>
       <button id="collectOfflineBtn">Collect</button>
+    </div>
+  </div>
+
+  <div id="helperRewardOverlay" class="screenOverlay hidden">
+    <div class="nameBox">
+      <h1>🎉 Thanks for helping!</h1>
+      <p id="helperRewardText">A friend asked you for help while you were away.</p>
+      <button id="helperRewardCloseBtn">Nice!</button>
     </div>
   </div>
 
@@ -1068,6 +1313,35 @@
       </div>
 
       <div id="savesStatusEl"></div>
+    </div>
+  </div>
+
+  <div id="friendsOverlay" class="hidden">
+    <div class="makerBox" id="friendsBox">
+      <button id="friendsClose" class="makerClose">✕</button>
+      <h2>👥 Friends</h2>
+
+      <div class="friendsTabs">
+        <button class="friendsTabBtn active" data-tab="friends" id="friendsTabBtn">My Friends</button>
+        <button class="friendsTabBtn" data-tab="requests" id="requestsTabBtn">Requests<span id="requestsBadge" class="hidden">0</span></button>
+        <button class="friendsTabBtn" data-tab="search" id="searchTabBtn">Find Players</button>
+      </div>
+
+      <div id="friendsTabPanel" class="friendsTabPanel">
+        <p class="friendsHint" id="helpCooldownHint"></p>
+        <p class="friendsHint" id="friendsListHint">Players you add will show up here.</p>
+        <div id="friendsResultsScroll" class="friendsScroll"><div id="friendsListEl"></div></div>
+      </div>
+
+      <div id="requestsTabPanel" class="friendsTabPanel hidden">
+        <p class="friendsHint" id="requestsListHint">Friend requests you've received will show up here.</p>
+        <div id="friendsResultsScroll3" class="friendsScroll"><div id="requestsListEl"></div></div>
+      </div>
+
+      <div id="searchTabPanel" class="friendsTabPanel hidden">
+        <input id="friendSearchInput" type="text" placeholder="Search a username..." autocomplete="off">
+        <div id="friendsResultsScroll2" class="friendsScroll"><div id="searchResultsEl"></div></div>
+      </div>
     </div>
   </div>
 
@@ -1225,6 +1499,9 @@
   const startBtn = document.getElementById('startBtn');
   const welcomeBackOverlay = document.getElementById('welcomeBackOverlay');
   const welcomeBackText = document.getElementById('welcomeBackText');
+  const helperRewardOverlay = document.getElementById('helperRewardOverlay');
+  const helperRewardText = document.getElementById('helperRewardText');
+  const helperRewardCloseBtn = document.getElementById('helperRewardCloseBtn');
   const collectOfflineBtn = document.getElementById('collectOfflineBtn');
   const doubleOfflineBtn = document.getElementById('doubleOfflineBtn');
   const doubleOfflineBtnText = document.getElementById('doubleOfflineBtnText');
@@ -1257,6 +1534,26 @@
   const savesOverlay = document.getElementById('savesOverlay');
   const savesClose = document.getElementById('savesClose');
   const savesStatusEl = document.getElementById('savesStatusEl');
+
+  const nameErrorEl = document.getElementById('nameError');
+  const friendsToggleBtn = document.getElementById('friendsToggleBtn');
+  const friendsBadge = document.getElementById('friendsBadge');
+  const friendsOverlay = document.getElementById('friendsOverlay');
+  const friendsClose = document.getElementById('friendsClose');
+  const friendsTabBtn = document.getElementById('friendsTabBtn');
+  const requestsTabBtn = document.getElementById('requestsTabBtn');
+  const requestsBadge = document.getElementById('requestsBadge');
+  const searchTabBtn = document.getElementById('searchTabBtn');
+  const friendsTabPanel = document.getElementById('friendsTabPanel');
+  const requestsTabPanel = document.getElementById('requestsTabPanel');
+  const searchTabPanel = document.getElementById('searchTabPanel');
+  const friendsListEl = document.getElementById('friendsListEl');
+  const friendsListHint = document.getElementById('friendsListHint');
+  const helpCooldownHint = document.getElementById('helpCooldownHint');
+  const requestsListEl = document.getElementById('requestsListEl');
+  const requestsListHint = document.getElementById('requestsListHint');
+  const searchResultsEl = document.getElementById('searchResultsEl');
+  const friendSearchInput = document.getElementById('friendSearchInput');
 
   const upgradesToggleBtn = document.getElementById('upgradesToggleBtn');
   const upgradesBadge = document.getElementById('upgradesBadge');
@@ -1299,6 +1596,8 @@
   const IDLE_SPOT2 = { x: 400, y: 560 };
   // Third worker's idle spot (used once the Hard Work upgrade is bought)
   const IDLE_SPOT3 = { x: 330, y: 560 };
+  // Fourth spot, used only while a friend is temporarily helping out
+  const IDLE_SPOT4 = { x: 260, y: 560 };
 
   // Offset from a machine's top-left corner (given its own w/h) to the
   // spot a worker stands at to operate it. Same offset used for every
@@ -1617,6 +1916,16 @@
   let playerName = 'Owner';
   let money = 0;
   let displayedMoney = 0;
+  let lifetimeEarned = 0;
+
+  // ---- Friend help: once every 24h, a friend's character can join the
+  // stall as a temporary 4th worker for 5 minutes. ----
+  const HELP_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+  const HELP_DURATION_MS = 5 * 60 * 1000;
+  let lastHelpAt = 0;
+  let helpWorkerExpiresAt = 0;
+  let helperName = '';
+  let helpTimeoutId = null;
 
   const owner = {
     x: IDLE_SPOT.x,
@@ -1826,9 +2135,35 @@
   // ---------------------------------------------------------------
   // Name entry
   // ---------------------------------------------------------------
-  function beginGame(){
+  function showNameError(msg){
+    nameErrorEl.textContent = msg;
+  }
+  function clearNameError(){
+    nameErrorEl.textContent = '';
+  }
+
+  async function beginGame(){
     const raw = nameInput.value.trim();
-    playerName = raw.length ? raw.slice(0, 14) : 'Owner';
+    if (!raw){
+      showNameError('Please enter a username.');
+      nameInput.focus();
+      return;
+    }
+    const candidate = raw.slice(0, 14);
+    clearNameError();
+    startBtn.disabled = true;
+    const originalLabel = startBtn.textContent;
+    startBtn.textContent = 'Checking name...';
+    let taken = false;
+    try { taken = await isNameTaken(candidate); } catch (e) { taken = false; }
+    startBtn.disabled = false;
+    startBtn.textContent = originalLabel;
+    if (taken){
+      showNameError('That username is already taken — try another!');
+      nameInput.focus();
+      return;
+    }
+    playerName = candidate;
     nameOverlay.classList.add('hidden');
     started = true;
     lastTime = performance.now();
@@ -1836,10 +2171,12 @@
     startMusic();
     scheduleNextSpawn(500);
     requestAnimationFrame(loop);
+    publishProfile();
   }
 
   startBtn.addEventListener('click', beginGame);
   nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') beginGame(); });
+  nameInput.addEventListener('input', clearNameError);
   window.addEventListener('load', tryAutoLoadOnStart);
 
   // ---------------------------------------------------------------
@@ -1947,6 +2284,41 @@
       headColor: '#3a2b1a', shirtColor: shirtColor,
       isOwner: false, targetCustomer: null, targetItem: null
     };
+  }
+
+  function removeHelperWorker(){
+    workers = workers.filter(w => !w.isHelper);
+  }
+  function addHelperWorker(name){
+    removeHelperWorker();
+    const w = makeWorker(IDLE_SPOT4, '#ff9f6b');
+    w.label = name;
+    w.isHelper = true;
+    workers.push(w);
+  }
+  // Spawns the helper worker for the remaining duration (used both when
+  // freshly requested and when restoring a still-active helper on load).
+  function startHelperWorker(name, durationMs){
+    if (durationMs <= 0) return;
+    helperName = name;
+    addHelperWorker(name);
+    clearTimeout(helpTimeoutId);
+    helpTimeoutId = setTimeout(() => {
+      removeHelperWorker();
+      helpWorkerExpiresAt = 0;
+      helperName = '';
+      writeAutoSave();
+    }, durationMs);
+  }
+  async function askFriendForHelp(name, helperKey){
+    const now = Date.now();
+    if (now - lastHelpAt < HELP_COOLDOWN_MS) return false;
+    lastHelpAt = now;
+    helpWorkerExpiresAt = now + HELP_DURATION_MS;
+    startHelperWorker(name, HELP_DURATION_MS);
+    if (helperKey) addHelpReward(helperKey, playerName); // best-effort, fire-and-forget
+    writeAutoSave();
+    return true;
   }
 
   function refreshUpgradesSidebar(){
@@ -2267,6 +2639,190 @@
     try { window.localStorage.removeItem(key); return true; } catch (e) { return false; }
   }
 
+  // ---------------------------------------------------------------
+  // Friends & player directory. Uses shared=true storage so every
+  // player's profile is visible to every other player of this game
+  // (that's what makes usernames unique and search work). Falls back
+  // to a localStorage-scoped stand-in when cloud storage isn't
+  // available, so the panel still works while testing outside Claude.
+  // ---------------------------------------------------------------
+  function directoryKey(name){
+    const slug = (name || '').trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-]/g, '');
+    return 'player:' + (slug || 'player_' + Math.random().toString(36).slice(2, 8));
+  }
+
+  async function dirGet(key){
+    if (hasCloudStorage){
+      try { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; }
+      catch (e) { return null; }
+    }
+    try {
+      const raw = window.localStorage.getItem('lvDir_' + key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  async function dirSet(key, obj){
+    const value = JSON.stringify(obj);
+    if (hasCloudStorage){
+      try { const r = await window.storage.set(key, value, true); return !!r; }
+      catch (e) { return false; }
+    }
+    try { window.localStorage.setItem('lvDir_' + key, value); return true; } catch (e) { return false; }
+  }
+  async function dirListKeys(prefix){
+    if (hasCloudStorage){
+      try { const r = await window.storage.list(prefix, true); return r ? r.keys : []; }
+      catch (e) { return []; }
+    }
+    try {
+      const keys = [];
+      for (let i = 0; i < window.localStorage.length; i++){
+        const k = window.localStorage.key(i);
+        if (k && k.indexOf('lvDir_' + prefix) === 0) keys.push(k.slice(6));
+      }
+      return keys;
+    } catch (e) { return []; }
+  }
+
+  async function isNameTaken(name){
+    const mine = directoryKey(playerName);
+    const key = directoryKey(name);
+    if (key === mine) return false; // re-typing your own current name is fine
+    const rec = await dirGet(key);
+    return !!rec;
+  }
+
+  function buildMyProfile(){
+    const lvl = stations.lemonade ? stations.lemonade.level : 1;
+    const buildingName = (BUILDINGS[buildingIndex] && BUILDINGS[buildingIndex].name) || 'Lemonade Stand';
+    return {
+      name: playerName,
+      level: lvl,
+      money: Math.floor(money),
+      gems: gems,
+      lifetimeEarned: Math.floor(lifetimeEarned),
+      building: buildingName,
+      updatedAt: Date.now()
+    };
+  }
+  async function publishProfile(){
+    if (!started || !playerName) return;
+    try { await dirSet(directoryKey(playerName), buildMyProfile()); } catch (e) { /* best-effort */ }
+  }
+
+  function keySlug(key){ return key.replace(/^player:/, ''); }
+  function friendsListKey(key){ return 'friendslist:' + keySlug(key); }
+  function requestsKeyOf(key){ return 'requests:' + keySlug(key); }
+  function rewardsKeyOf(key){ return 'helprewards:' + keySlug(key); }
+
+  // Pending gem rewards for players who helped a friend out. Written by
+  // whoever asked for help; claimed by the helper next time they load
+  // their game (see checkHelperRewards).
+  async function getHelpRewards(key){
+    const list = await dirGet(rewardsKeyOf(key));
+    return Array.isArray(list) ? list : [];
+  }
+  async function addHelpReward(key, fromName){
+    const list = await getHelpRewards(key);
+    list.push({ from: fromName, at: Date.now() });
+    await dirSet(rewardsKeyOf(key), list);
+  }
+  async function clearHelpRewards(key){
+    await dirSet(rewardsKeyOf(key), []);
+  }
+
+  async function getFriendsList(key){
+    const list = await dirGet(friendsListKey(key));
+    return Array.isArray(list) ? list : [];
+  }
+  async function setFriendsListFor(key, list){
+    await dirSet(friendsListKey(key), list);
+  }
+  async function getRequestsFor(key){
+    const list = await dirGet(requestsKeyOf(key));
+    return Array.isArray(list) ? list : [];
+  }
+  async function setRequestsFor(key, list){
+    await dirSet(requestsKeyOf(key), list);
+  }
+
+  // Sends a friend request: appends my {key, name} to the target's
+  // shared requests list. Anyone can write shared keys, which is what
+  // lets this reach the other player's own browser/session later.
+  async function sendFriendRequest(targetKey, targetName){
+    const myKey = directoryKey(playerName);
+    if (targetKey === myKey) return;
+    const myFriends = await getFriendsList(myKey);
+    if (myFriends.some(f => f.key === targetKey)) return; // already friends
+    const theirRequests = await getRequestsFor(targetKey);
+    if (theirRequests.some(r => r.key === myKey)) return; // already pending
+    theirRequests.push({ key: myKey, name: playerName, sentAt: Date.now() });
+    await setRequestsFor(targetKey, theirRequests);
+  }
+
+  async function acceptFriendRequest(req){
+    const myKey = directoryKey(playerName);
+    let myRequests = await getRequestsFor(myKey);
+    myRequests = myRequests.filter(r => r.key !== req.key);
+    await setRequestsFor(myKey, myRequests);
+
+    const myFriends = await getFriendsList(myKey);
+    if (!myFriends.some(f => f.key === req.key)) myFriends.push({ key: req.key, name: req.name });
+    await setFriendsListFor(myKey, myFriends);
+
+    const theirFriends = await getFriendsList(req.key);
+    if (!theirFriends.some(f => f.key === myKey)) theirFriends.push({ key: myKey, name: playerName });
+    await setFriendsListFor(req.key, theirFriends);
+  }
+
+  async function declineFriendRequest(req){
+    const myKey = directoryKey(playerName);
+    let myRequests = await getRequestsFor(myKey);
+    myRequests = myRequests.filter(r => r.key !== req.key);
+    await setRequestsFor(myKey, myRequests);
+  }
+
+  async function removeFriend(friendKey, friendName){
+    const myKey = directoryKey(playerName);
+    let myFriends = await getFriendsList(myKey);
+    myFriends = myFriends.filter(f => f.key !== friendKey);
+    await setFriendsListFor(myKey, myFriends);
+
+    let theirFriends = await getFriendsList(friendKey);
+    theirFriends = theirFriends.filter(f => f.key !== myKey);
+    await setFriendsListFor(friendKey, theirFriends);
+  }
+
+  // A handful of NPC profiles so search/friends feels alive even before
+  // any real players have created accounts. Written once, ever, behind
+  // a flag key so real players are never overwritten.
+  const NPC_SEED = [
+    { name: 'SunnyDay',      level: 14, money: 3200,    gems: 4,  lifetimeEarned: 18000,  building: 'Lemonade Stand' },
+    { name: 'LemonQueen88',  level: 27, money: 41000,   gems: 12, lifetimeEarned: 155000, building: 'Classic Stand' },
+    { name: 'ZestMaster',    level: 9,  money: 900,     gems: 1,  lifetimeEarned: 4200,   building: 'Lemonade Stand' },
+    { name: 'PitcherPro',    level: 33, money: 88000,   gems: 20, lifetimeEarned: 402000, building: 'Classic Stand' },
+    { name: 'SugarRush99',   level: 5,  money: 210,     gems: 0,  lifetimeEarned: 800,    building: 'Lemonade Stand' },
+    { name: 'CitrusKing',    level: 21, money: 15400,   gems: 7,  lifetimeEarned: 62000,  building: 'Classic Stand' },
+    { name: 'StallStar',     level: 18, money: 9600,    gems: 5,  lifetimeEarned: 35000,  building: 'Lemonade Stand' },
+    { name: 'GoldenGlass',   level: 40, money: 210000,  gems: 34, lifetimeEarned: 980000, building: 'Classic Stand' },
+    { name: 'MintyBreeze',   level: 3,  money: 90,      gems: 0,  lifetimeEarned: 260,    building: 'Lemonade Stand' },
+    { name: 'HustleHannah',  level: 24, money: 26500,   gems: 9,  lifetimeEarned: 91000,  building: 'Classic Stand' },
+    { name: 'DripDrop',      level: 12, money: 2100,    gems: 3,  lifetimeEarned: 11000,  building: 'Lemonade Stand' },
+    { name: 'TropicVibes',   level: 30, money: 60000,   gems: 16, lifetimeEarned: 260000, building: 'Classic Stand' }
+  ];
+  async function seedDirectoryIfNeeded(){
+    const flagKey = 'player:_npc_seed_flag';
+    const already = await dirGet(flagKey);
+    if (already) return;
+    for (const npc of NPC_SEED){
+      const key = directoryKey(npc.name);
+      const existing = await dirGet(key);
+      if (!existing) await dirSet(key, Object.assign({ updatedAt: Date.now() }, npc));
+    }
+    await dirSet(flagKey, { seeded: true, at: Date.now() });
+  }
+  seedDirectoryIfNeeded();
+
   // Load any saved music-mute preference now that storage helpers exist.
   (async function initMusicPreference(){
     const raw = await storageGetRaw(MUSIC_PREF_KEY);
@@ -2294,6 +2850,9 @@
     if (!started) return;
     try { await storageSetRaw(AUTO_SAVE_KEY, JSON.stringify(captureGameState())); }
     catch (e) { /* best-effort */ }
+    publishProfile();
+    checkRequestsBadge();
+    checkHelperRewards();
   }
 
   function captureGameState(){
@@ -2315,6 +2874,10 @@
       playerName,
       money,
       gems,
+      lifetimeEarned,
+      lastHelpAt,
+      helpWorkerExpiresAt,
+      helperName,
       buildingIndex,
       advertisingBought, managementBought, hasteBought, reviewsBought, profitsBought,
       cleanPumpsBought, newspapersBought, hardWorkBought, ketchupBought, zestyLemonsBought,
@@ -2328,6 +2891,7 @@
     money = state.money || 0;
     displayedMoney = money;
     gems = state.gems || 0;
+    lifetimeEarned = state.lifetimeEarned || 0;
     buildingIndex = Math.min(Math.max(state.buildingIndex || 0, 0), BUILDINGS.length - 1);
     applyBuildingTheme(buildingIndex);
 
@@ -2378,6 +2942,18 @@
       workers.push(makeWorker(IDLE_SPOT3, '#7a63e0'));
     }
 
+    lastHelpAt = state.lastHelpAt || 0;
+    helpWorkerExpiresAt = state.helpWorkerExpiresAt || 0;
+    helperName = state.helperName || '';
+    clearTimeout(helpTimeoutId);
+    const remainingHelp = helpWorkerExpiresAt - Date.now();
+    if (remainingHelp > 0 && helperName){
+      startHelperWorker(helperName, remainingHelp);
+    } else {
+      helpWorkerExpiresAt = 0;
+      helperName = '';
+    }
+
     floatingTexts = [];
     coinParticles = [];
 
@@ -2388,6 +2964,7 @@
     refreshUpgradesSidebar();
     refreshUpgradesBadge();
     refreshRenovateBadge();
+    publishProfile();
   }
 
   // ---------------------------------------------------------------
@@ -2468,6 +3045,38 @@
   });
 
   // ---------------------------------------------------------------
+  // Helper rewards: claimed by a player who previously helped a friend
+  // out, next time they load their game. +1 gem per help given.
+  // ---------------------------------------------------------------
+  let helperRewardShowing = false;
+  function showHelperRewardOverlay(fromNames, gemsEarned){
+    helperRewardShowing = true;
+    const unique = [...new Set(fromNames)];
+    const nameText = unique.length === 1
+      ? unique[0]
+      : unique.slice(0, -1).join(', ') + ' and ' + unique[unique.length - 1];
+    helperRewardText.textContent = nameText + ' asked you for help at their stall! You earned +' +
+      gemsEarned + ' 💎 for lending a hand.';
+    helperRewardOverlay.classList.remove('hidden');
+  }
+  helperRewardCloseBtn.addEventListener('click', () => {
+    helperRewardOverlay.classList.add('hidden');
+    helperRewardShowing = false;
+  });
+  async function checkHelperRewards(){
+    if (!started || !playerName || helperRewardShowing) return;
+    const myKey = directoryKey(playerName);
+    let rewards = [];
+    try { rewards = await getHelpRewards(myKey); } catch (e) { return; }
+    if (!rewards.length) return;
+    try { await clearHelpRewards(myKey); } catch (e) { /* best-effort */ }
+    gems += rewards.length;
+    gemCountEl.textContent = gems;
+    showHelperRewardOverlay(rewards.map(r => r.from), rewards.length);
+    writeAutoSave();
+  }
+
+  // ---------------------------------------------------------------
   // Auto-load: on page open, resume straight from the autosave (if any)
   // instead of asking for a name again.
   // ---------------------------------------------------------------
@@ -2485,6 +3094,8 @@
     getAudio();
     startMusic();
     requestAnimationFrame(loop);
+    publishProfile();
+    checkHelperRewards();
 
     const offline = computeOfflineEarnings(state);
     if (offline){
@@ -2628,6 +3239,245 @@
     else if (action === 'delete') doDelete(n);
   }));
   document.querySelectorAll('.confirmNoBtn').forEach(btn => btn.addEventListener('click', () => hideSlotConfirm(btn.dataset.slot)));
+
+  // ---------------------------------------------------------------
+  // Friends panel
+  // ---------------------------------------------------------------
+  function friendRowHTML(profile, key, mode, extra){
+    const isSelf = key === directoryKey(playerName);
+    const statsHTML =
+      '<div class="friendStats">' + (profile.building || 'Lemonade Stand') + ' &middot; Lvl ' + (profile.level || 1) +
+        '<br>$' + Math.floor(profile.money || 0).toLocaleString() + ' &middot; 💎' + (profile.gems || 0) +
+        ' &middot; Lifetime $' + Math.floor(profile.lifetimeEarned || 0).toLocaleString() +
+      '</div>';
+
+    let actionHTML;
+    if (mode === 'request'){
+      actionHTML =
+        '<div class="friendActionCol">' +
+          '<button class="friendActionBtn acceptBtn" data-key="' + key + '" data-name="' + escAttr(profile.name) + '">Accept</button>' +
+          '<button class="friendActionBtn declineBtn" data-key="' + key + '">Decline</button>' +
+        '</div>';
+    } else if (mode === 'friend'){
+      const helpDisabled = extra.helpOnCooldown || !!helperName;
+      actionHTML =
+        '<div class="friendActionCol">' +
+          '<button class="friendActionBtn helpBtn" data-key="' + key + '" data-name="' + escAttr(profile.name) + '"' +
+            (helpDisabled ? ' disabled' : '') + '>' + (helperName === profile.name ? 'Helping!' : 'Ask for Help') + '</button>' +
+          '<button class="friendActionBtn removeBtn" data-key="' + key + '" data-name="' + escAttr(profile.name) + '">Remove</button>' +
+        '</div>';
+    } else { // search
+      actionHTML = isSelf
+        ? '<button class="friendActionBtn selfBtn" disabled>You</button>'
+        : extra.isFriend
+          ? '<button class="friendActionBtn friendBtn" disabled>Friends ✓</button>'
+          : extra.isPending
+            ? '<button class="friendActionBtn pendingBtn" disabled>Requested</button>'
+            : '<button class="friendActionBtn addBtn" data-key="' + key + '" data-name="' + escAttr(profile.name) + '">Add Friend</button>';
+    }
+
+    return '' +
+      '<div class="friendRow">' +
+        '<div class="friendAvatar">🍋</div>' +
+        '<div class="friendInfo">' +
+          '<div class="friendName">' + profile.name + '</div>' +
+          statsHTML +
+        '</div>' +
+        actionHTML +
+      '</div>';
+  }
+  function escAttr(s){ return (s || '').replace(/"/g, '&quot;'); }
+
+  function refreshHelpCooldownHint(){
+    const now = Date.now();
+    if (helperName){
+      const remain = Math.max(0, Math.ceil((helpWorkerExpiresAt - now) / 1000));
+      helpCooldownHint.textContent = '✨ ' + helperName + ' is helping out for ' + formatDuration(remain) + ' more!';
+      helpCooldownHint.classList.remove('hidden');
+    } else if (now - lastHelpAt < HELP_COOLDOWN_MS){
+      const remain = Math.ceil((HELP_COOLDOWN_MS - (now - lastHelpAt)) / 1000);
+      helpCooldownHint.textContent = '⏳ Next friend help available in ' + formatDuration(remain) + '.';
+      helpCooldownHint.classList.remove('hidden');
+    } else {
+      helpCooldownHint.textContent = '💡 You can ask one friend to help out for 5 minutes, once a day.';
+      helpCooldownHint.classList.remove('hidden');
+    }
+  }
+
+  async function refreshFriendsTab(){
+    refreshHelpCooldownHint();
+    const myKey = directoryKey(playerName);
+    const friends = await getFriendsList(myKey);
+    if (!friends.length){
+      friendsListHint.classList.remove('hidden');
+      friendsListEl.innerHTML = '';
+      return;
+    }
+    friendsListHint.classList.add('hidden');
+    const now = Date.now();
+    const helpOnCooldown = (now - lastHelpAt < HELP_COOLDOWN_MS) && !helperName;
+    const rows = [];
+    for (const f of friends){
+      const profile = await dirGet(f.key);
+      if (!profile) continue;
+      rows.push(friendRowHTML(profile, f.key, 'friend', { helpOnCooldown }));
+    }
+    friendsListEl.innerHTML = rows.length ? rows.join('') : '<p class="friendsHint">None of your friends could be found right now.</p>';
+  }
+
+  async function refreshRequestsTab(){
+    const myKey = directoryKey(playerName);
+    const requests = await getRequestsFor(myKey);
+    if (!requests.length){
+      requestsListHint.classList.remove('hidden');
+      requestsListEl.innerHTML = '';
+      updateRequestsBadge(0);
+      return;
+    }
+    requestsListHint.classList.add('hidden');
+    const rows = [];
+    for (const r of requests){
+      const profile = await dirGet(r.key);
+      const shown = profile || { name: r.name, level: 1, money: 0, gems: 0, lifetimeEarned: 0, building: 'Lemonade Stand' };
+      rows.push(friendRowHTML(shown, r.key, 'request'));
+    }
+    requestsListEl.innerHTML = rows.join('');
+    updateRequestsBadge(requests.length);
+  }
+
+  function updateRequestsBadge(n){
+    if (n > 0){
+      requestsBadge.textContent = n > 9 ? '9+' : String(n);
+      requestsBadge.classList.remove('hidden');
+      friendsBadge.classList.remove('hidden');
+    } else {
+      requestsBadge.classList.add('hidden');
+      friendsBadge.classList.add('hidden');
+    }
+  }
+  // Lightweight periodic check so the badge can appear even without
+  // opening the panel (piggybacks on the existing autosave heartbeat).
+  async function checkRequestsBadge(){
+    if (!started || !playerName) return;
+    try {
+      const requests = await getRequestsFor(directoryKey(playerName));
+      updateRequestsBadge(requests.length);
+    } catch (e) { /* best-effort */ }
+  }
+
+  let directoryCache = null;
+  async function loadDirectoryCache(){
+    const keys = await dirListKeys('player:');
+    const profiles = [];
+    for (const key of keys){
+      if (key === 'player:_npc_seed_flag') continue;
+      const profile = await dirGet(key);
+      if (profile) profiles.push({ key, profile });
+    }
+    directoryCache = profiles;
+    return profiles;
+  }
+
+  async function refreshSearchTab(){
+    const query = friendSearchInput.value.trim().toLowerCase();
+    if (!directoryCache) await loadDirectoryCache();
+    const myKey = directoryKey(playerName);
+    const friends = await getFriendsList(myKey);
+    const friendKeySet = new Set(friends.map(f => f.key));
+    let list = directoryCache || [];
+    if (query){
+      list = list.filter(e => e.profile.name.toLowerCase().includes(query));
+    }
+    list = list.slice(0, 30);
+    if (!list.length){
+      searchResultsEl.innerHTML = '<p class="friendsHint">' +
+        (query ? 'No players found with that name.' : 'Start typing to search for players.') + '</p>';
+      return;
+    }
+    const rows = [];
+    for (const e of list){
+      const isFriend = friendKeySet.has(e.key);
+      let isPending = false;
+      if (!isFriend && e.key !== myKey){
+        const theirRequests = await getRequestsFor(e.key);
+        isPending = theirRequests.some(r => r.key === myKey);
+      }
+      rows.push(friendRowHTML(e.profile, e.key, 'search', { isFriend, isPending }));
+    }
+    searchResultsEl.innerHTML = rows.join('');
+  }
+
+  friendsListEl.addEventListener('click', async (e) => {
+    const helpBtn = e.target.closest('.helpBtn');
+    const removeBtn = e.target.closest('.removeBtn');
+    if (helpBtn && !helpBtn.disabled){
+      const ok = await askFriendForHelp(helpBtn.dataset.name, helpBtn.dataset.key);
+      if (ok){
+        spawnFloatingText(IDLE_SPOT4.x, IDLE_SPOT4.y - 30, helpBtn.dataset.name + ' is helping!');
+      }
+      refreshFriendsTab();
+    } else if (removeBtn){
+      await removeFriend(removeBtn.dataset.key, removeBtn.dataset.name);
+      refreshFriendsTab();
+    }
+  });
+
+  requestsListEl.addEventListener('click', async (e) => {
+    const acceptBtn = e.target.closest('.acceptBtn');
+    const declineBtn = e.target.closest('.declineBtn');
+    if (acceptBtn){
+      await acceptFriendRequest({ key: acceptBtn.dataset.key, name: acceptBtn.dataset.name });
+      refreshRequestsTab();
+    } else if (declineBtn){
+      await declineFriendRequest({ key: declineBtn.dataset.key });
+      refreshRequestsTab();
+    }
+  });
+
+  searchResultsEl.addEventListener('click', async (e) => {
+    const addBtn = e.target.closest('.addBtn');
+    if (!addBtn) return;
+    await sendFriendRequest(addBtn.dataset.key, addBtn.dataset.name);
+    refreshSearchTab();
+  });
+
+  let searchDebounce = null;
+  friendSearchInput.addEventListener('input', () => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(refreshSearchTab, 150);
+  });
+
+  function setFriendsTab(tab){
+    friendsTabBtn.classList.toggle('active', tab === 'friends');
+    requestsTabBtn.classList.toggle('active', tab === 'requests');
+    searchTabBtn.classList.toggle('active', tab === 'search');
+    friendsTabPanel.classList.toggle('hidden', tab !== 'friends');
+    requestsTabPanel.classList.toggle('hidden', tab !== 'requests');
+    searchTabPanel.classList.toggle('hidden', tab !== 'search');
+    if (tab === 'friends') refreshFriendsTab();
+    else if (tab === 'requests') refreshRequestsTab();
+    else refreshSearchTab();
+  }
+
+  friendsTabBtn.addEventListener('click', () => setFriendsTab('friends'));
+  requestsTabBtn.addEventListener('click', () => setFriendsTab('requests'));
+  searchTabBtn.addEventListener('click', () => setFriendsTab('search'));
+
+  function openFriendsPanel(){
+    friendsOverlay.classList.remove('hidden');
+    directoryCache = null;
+    friendSearchInput.value = '';
+    setFriendsTab('friends');
+    refreshRequestsTab(); // keeps the badge accurate even while staying on the Friends tab
+  }
+  function closeFriendsPanel(){
+    friendsOverlay.classList.add('hidden');
+  }
+  friendsToggleBtn.addEventListener('click', openFriendsPanel);
+  friendsClose.addEventListener('click', closeFriendsPanel);
+  friendsOverlay.addEventListener('click', (e) => {
+    if (e.target === friendsOverlay) closeFriendsPanel();
+  });
 
   canvas.addEventListener('click', (e) => {
     if (!started) return;
@@ -2809,6 +3659,7 @@
       const station = stations[item.productId];
       const earned = getEffectivePrice(station);
       money += earned;
+      lifetimeEarned += earned;
       item.state = 'delivered';
 
       const allDelivered = c.items.every(it => it.state === 'delivered');
